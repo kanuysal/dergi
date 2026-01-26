@@ -3123,8 +3123,7 @@
                             console.log("Live Data Loaded via APIProxy");
                             dataLoaded = true;
                         } else {
-                            console.error("API Response Invalid:", data);
-                            throw new Error("Invalid Data Structure: " + (data.error || "Unknown"));
+                            throw new Error("Invalid Data Structure");
                         }
                     } else {
                         throw new Error("API Error: " + response.status);

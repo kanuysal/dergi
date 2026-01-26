@@ -25,7 +25,7 @@ require_once '_secret/keys.php';
 if (isset($_SERVER['HTTP_REFERER'])) {
     $referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
     // Allowed domains: .com, .shop, .me, localhost
-    if ($referer && $referer !== 'minalidya.com' && $referer !== 'minalidya.shop' && $referer !== 'minalidya.me' && $referer !== 'localhost' && $referer !== '127.0.0.1') {
+    if ($referer && $referer !== 'minalidya.com' && $referer !== 'minalidya.shop' && $referer !== 'minalidya.me' && $referer !== 'minalidya.wedding' && $referer !== 'localhost' && $referer !== '127.0.0.1') {
          // Istege bagli: echo json_encode(["error" => "Unauthorized Origin"]); exit;
     }
 }

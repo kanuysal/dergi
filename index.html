@@ -3428,26 +3428,26 @@
                     opacity: 0, duration: 0.2, onComplete: () => {
                         if (String(this.idx).length > 6 || window.VIMEO_GALLERY_IDS[this.idx - 1]) {
                             const vId = window.VIMEO_GALLERY_IDS[this.idx - 1] || this.idx;
-                            document.getElementById('pvVideoContainer').innerHTML = window.VimeoHelper.getGalleryIframe(vId);
-                            gsap.to('#pvVideoContainer', { opacity: 1, duration: 0.5 });
+                            const container = document.getElementById('pvVideoContainer');
+                            container.innerHTML = window.VimeoHelper.getGalleryIframe(vId);
+                            gsap.to(container, { opacity: 1, duration: 0.5 });
+                            gsap.to('#pvStatus', { opacity: 0 });
                         } else {
                             this.elVideo.src = `${this.path}${this.idx}.mp4`;
                             this.elVideo.load();
-                            // ... rest of load logic
-                        }
-
-                        const p = this.elVideo.play();
-                        if (p !== undefined) {
-                            p.then(() => {
-                                this.updatePlayBtn(true);
-                                gsap.to(this.elVideo, { opacity: 1, duration: 0.5 });
-                                gsap.to('#pvStatus', { opacity: 0 });
-                            }).catch(err => {
-                                console.warn("Autoplay Blocked:", err);
-                                this.updatePlayBtn(false);
-                                gsap.to(this.elVideo, { opacity: 1, duration: 0.5 }); // Show anyway
-                                gsap.to('#pvStatus', { opacity: 1, innerText: "PRESS PLAY" });
-                            });
+                            const p = this.elVideo.play();
+                            if (p !== undefined) {
+                                p.then(() => {
+                                    this.updatePlayBtn(true);
+                                    gsap.to(this.elVideo, { opacity: 1, duration: 0.5 });
+                                    gsap.to('#pvStatus', { opacity: 0 });
+                                }).catch(err => {
+                                    console.warn("Autoplay Blocked:", err);
+                                    this.updatePlayBtn(false);
+                                    gsap.to(this.elVideo, { opacity: 1, duration: 0.5 });
+                                    gsap.to('#pvStatus', { opacity: 1, innerText: "PRESS PLAY" });
+                                });
+                            }
                         }
                     }
                 });

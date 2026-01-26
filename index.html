@@ -3059,7 +3059,9 @@
                     // Increased timeout to 30s because server needs time to loop pagination for all products
                     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-                    const response = await fetch('api.php?type=products', { signal: controller.signal });
+                    // Point to the main site's proxy where PHP executes correctly
+                    const PROXY_URL = "https://minalidya.com/katalog/api.php?type=products";
+                    const response = await fetch(PROXY_URL, { signal: controller.signal });
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
@@ -3129,7 +3131,7 @@
                     }
 
                 } catch (error) {
-                    console.warn("API Connection skipped/failed, switching to fallback.", error);
+                    // Silently switch to static data if API proxy is unavailable or serving raw text (Cloudflare environment)
                     useStaticData();
                 }
 

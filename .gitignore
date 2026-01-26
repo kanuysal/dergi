@@ -1,0 +1,7 @@
+# Security
+_secret/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

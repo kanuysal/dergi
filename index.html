@@ -1,0 +1,3560 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mina Lidya | The Black Swan</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" href="logo.png">
+
+    <style>
+        /* --- CONFIG (ELITE / HIGH FASHION) --- */
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --text-muted: #999999;
+            --accent: #e0e0e0;
+            --panel-bg: #080808;
+            --thumb-bg: #111;
+            --font-head: 'Cinzel', serif;
+            --font-body: 'Manrope', sans-serif;
+            --overlay-dark: rgba(0, 0, 0, 0.7);
+            --crystal-glow: 0 0 20px rgba(255, 255, 255, 0.4);
+
+            /* Infinite Grid Vars */
+            --margin: 30rem;
+            --gap: 20rem;
+            --rvw: 1vw;
+            --column: calc((var(--rvw) * 100 - var(--margin) * 2 - var(--gap) * 9) / 10);
+            --caption-color: #333333;
+        }
+
+        body.light-mode {
+            --bg: #f5f5f5;
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --accent: #b8860b;
+            --panel-bg: #fff;
+            --thumb-bg: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
+            transition: background 0.8s ease;
+        }
+
+        img {
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* --- LAYERS --- */
+        .app-layer {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 0;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--bg);
+        }
+
+        .app-layer.active-layer {
+            opacity: 1;
+            visibility: visible;
+            z-index: 100;
+        }
+
+        /* --- UI ELEMENTS --- */
+        #homeLogo {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            z-index: 2000;
+            font-family: var(--font-head);
+            font-weight: 500;
+            letter-spacing: 4px;
+            color: var(--text);
+            font-size: 0.9rem;
+            mix-blend-mode: exclusion;
+        }
+
+        #backBtn,
+        #themeBtn {
+            mix-blend-mode: difference;
+            cursor: pointer;
+            transition: 0.4s;
+            color: #fff;
+        }
+
+        #backBtn {
+            position: fixed;
+            top: 90px;
+            left: 40px;
+            z-index: 2000;
+            font-family: var(--font-body);
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 4px;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #backBtn:hover {
+            border-color: #fff;
+            letter-spacing: 3px;
+        }
+
+        #themeBtn {
+            position: fixed;
+            top: 40px;
+            right: 180px;
+            z-index: 2000;
+            font-size: 1.1rem;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .audio-panel {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            mix-blend-mode: exclusion;
+        }
+
+        .lang-btn {
+            font-size: 0.7rem;
+            font-weight: 300;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #fff;
+        }
+
+        .lang-btn.active,
+        .lang-btn:hover {
+            opacity: 1;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        .sound-toggle {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .equalizer {
+            display: flex;
+            gap: 2px;
+            height: 12px;
+            align-items: flex-end;
+        }
+
+        .bar {
+            width: 2px;
+            background: #fff;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+
+        .bar:nth-child(2) {
+            animation-delay: 0.2s;
+            height: 6px;
+        }
+
+        .bar:nth-child(3) {
+            animation-delay: 0.4s;
+            height: 12px;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scaleY(0.5);
+            }
+
+            50% {
+                transform: scaleY(1.2);
+            }
+        }
+
+        /* --- INTRO --- */
+        .intro-layer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .intro-video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            filter: grayscale(100%);
+            transition: 2s;
+        }
+
+        .intro-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            margin-bottom: 40px;
+        }
+
+        .main-logo-img {
+            width: 140px;
+            opacity: 0.9;
+        }
+
+        .intro-title {
+            font-family: var(--font-head);
+            font-size: 3.5vw;
+            letter-spacing: 12px;
+            color: #fff;
+            margin-bottom: 40px;
+            opacity: 0;
+            font-weight: 400;
+        }
+
+        .enter-btn {
+            padding: 18px 60px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            letter-spacing: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.6s;
+            opacity: 0;
+            background: transparent;
+            text-transform: uppercase;
+        }
+
+        .enter-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .intro-video-link {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .intro-video-link:hover {
+            opacity: 1;
+            letter-spacing: 4px;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #666;
+            letter-spacing: 3px;
+            font-style: italic;
+            opacity: 0;
+        }
+
+        .cinematic-text-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            z-index: 20;
+            color: #fff;
+            text-align: left;
+        }
+
+        .cinematic-title {
+            font-family: var(--font-head);
+            font-size: 2.5rem;
+            line-height: 1.1;
+            margin-top: 10px;
+        }
+
+        .cinematic-credits {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            opacity: 0.6;
+            margin-top: 10px;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            padding-left: 15px;
+        }
+
+        /* --- QUIZ --- */
+        .view-quiz {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .quiz-title {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            margin-bottom: 60px;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .quiz-options {
+            display: flex;
+            gap: 40px;
+        }
+
+        .quiz-btn {
+            padding: 20px 60px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-family: var(--font-body);
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.4s;
+            text-transform: uppercase;
+        }
+
+        .quiz-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* --- MENU (ELITE) --- */
+        .view-menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-bg-fx {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .menu-hover-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            filter: grayscale(100%) brightness(0.4);
+            transform: scale(1.05);
+        }
+
+        .menu-hover-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+        }
+
+        .menu-hover-img.active {
+            opacity: 1;
+            transform: scale(1);
+            filter: grayscale(100%) brightness(0.6) blur(0px);
+        }
+
+        /* Add vignette div manually in HTML or use pseudo on container */
+
+        ul.menu-list {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        li.menu-item {
+            font-family: var(--font-head);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.6s ease;
+            font-size: 3.5vw;
+            padding: 10px 0;
+            margin: 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            /* Center letters */
+        }
+
+        /* --- LANG SWITCHER --- */
+        #langSwitcher {
+            position: fixed;
+            top: 40px;
+            right: 280px;
+            z-index: 2000;
+            display: flex;
+            gap: 10px;
+            mix-blend-mode: exclusion;
+        }
+
+        .lang-opt {
+            font-size: 0.7rem;
+            color: #fff;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .lang-opt.active {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        li.menu-item {
+            font-family: var(--font-head);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.6s ease;
+            font-size: 3.5vw;
+            padding: 10px 0;
+            margin: 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            /* Center letters */
+        }
+
+        .menu-char {
+            display: inline-block;
+            transition: all 0.4s ease;
+        }
+
+        .menu-vowel {
+            display: inline-block;
+            max-width: 0;
+            opacity: 0;
+            filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            color: var(--accent);
+            /* Highlight vowels slightly? User didn't ask, but looks cool. Stick to white if unsure. */
+            color: #fff;
+        }
+
+        li.menu-item:hover .menu-vowel {
+            max-width: 0.8em;
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        li.menu-item:hover {
+            letter-spacing: 5px;
+        }
+
+        .cat-count {
+            font-size: 0.7rem;
+            vertical-align: top;
+            margin-left: 10px;
+            opacity: 0;
+            transition: 0.3s;
+            font-family: var(--font-body);
+            color: var(--accent);
+        }
+
+        li.menu-item:hover .cat-count {
+            opacity: 1;
+        }
+
+        li.video-link {
+            margin-top: 40px;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 40px;
+            border-radius: 0;
+            display: inline-block;
+            color: #fff;
+            transition: 0.4s;
+        }
+
+        li.video-link:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* --- GRID (CLEAN MASONRY) --- */
+        .view-grid {
+            overflow-y: auto;
+            padding: 120px 40px 40px 40px;
+            display: block;
+        }
+
+        .drag-canvas {
+            display: none !important;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2px;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .grid-item {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .grid-card {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), filter 0.5s;
+            filter: grayscale(100%);
+        }
+
+        .grid-item:hover .grid-card {
+            transform: scale(1.05);
+            filter: grayscale(0%);
+        }
+
+        .grid-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            opacity: 0;
+            transition: 0.4s;
+            transform: translateY(10px);
+        }
+
+        .grid-item:hover .grid-info-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .grid-title {
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        /* --- DETAIL VIEW (ELITE SPLIT) --- */
+        .view-detail {
+            display: flex;
+            flex-direction: row;
+            background: #000;
+        }
+
+        .close-det {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 500;
+            color: #fff;
+            transition: 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        .close-det:hover {
+            transform: rotate(90deg);
+            color: var(--accent);
+        }
+
+        .det-gallery-container {
+            width: 55%;
+            height: 100vh;
+            position: relative;
+            background: #050505;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .det-main-stage {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        .det-main-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .det-thumbnails {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .thumb {
+            height: 100%;
+            width: auto;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid transparent;
+            pointer-events: auto;
+            /* Fix click */
+        }
+
+        .thumb:hover,
+        .thumb.active {
+            opacity: 1;
+            border-color: #fff;
+        }
+
+        .det-info {
+            width: 45%;
+            height: 100vh;
+            background: #111;
+            color: #fff;
+            padding: 120px 60px 60px 60px;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            /* For close button positioning context if moved inside */
+        }
+
+        .det-title {
+            font-family: var(--font-head);
+            font-size: 3.5rem;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .det-desc {
+            font-size: 0.95rem;
+            color: #aaa;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            font-weight: 300;
+            max-width: 90%;
+        }
+
+        .attr-table {
+            margin-bottom: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .attr-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .attr-label {
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .attr-val {
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .whatsapp-btn,
+        .shop-btn {
+            display: block;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.4s;
+            text-decoration: none;
+        }
+
+        .whatsapp-btn {
+            background: #fff;
+            color: #000;
+            margin-bottom: 10px;
+            border: 1px solid #fff;
+        }
+
+        .whatsapp-btn:hover {
+            background: transparent;
+            color: #fff;
+        }
+
+        body.light-mode {
+            background: #f0f0f0;
+            color: #111;
+            --accent: #d4a017;
+            /* Darker Gold for visibility */
+            --font-head: 'Cinzel', serif;
+        }
+
+        body.light-mode #menuList .menu-item {
+            color: #333 !important;
+            text-shadow: none;
+        }
+
+        body.light-mode #menuList .menu-item:hover {
+            color: #000 !important;
+        }
+
+        body.light-mode .det-title,
+        body.light-mode .intro-title {
+            color: #000;
+        }
+
+        body.light-mode .close-det {
+            color: #000;
+            border-color: #000;
+        }
+
+        body.light-mode #viewModeSelector div {
+            color: #555 !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        body.light-mode .menu-char {
+            color: #333;
+        }
+
+        body.light-mode .menu-vowel {
+            color: var(--accent);
+        }
+
+        .shop-btn {
+            background: transparent;
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .shop-btn:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        /* --- VIDEO GALLERY (Clean) --- */
+        .view-video-gallery {
+            background: #000;
+            justify-content: center;
+        }
+
+        .video-slot {
+            box-shadow: none;
+            border: none;
+            background: #000;
+        }
+
+        .video-slot.center {
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Mobile */
+        @media (max-width: 1024px) {
+            :root {
+                --margin: 15px;
+                --gap: 10rem;
+                --column: calc((100vw - var(--margin) * 2 - var(--gap) * 5) / 6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .intro-title {
+                font-size: 8vw !important;
+            }
+
+            .intro-video-link {
+                bottom: 80px;
+                z-index: 30;
+            }
+
+            .cinematic-text-container {
+                bottom: 20px;
+                left: 20px;
+                z-index: 20;
+            }
+
+            li.menu-item {
+                font-size: 8vw;
+                padding: 15px 0;
+            }
+
+            .view-detail {
+                flex-direction: column;
+            }
+
+            .det-gallery-container {
+                width: 100%;
+                height: 50vh;
+                flex-direction: column-reverse;
+            }
+
+            /* Image on top, thumbs on bottom */
+            .det-thumbnails {
+                width: 100%;
+                height: 60px;
+                flex-direction: row;
+                padding: 5px;
+                justify-content: center;
+            }
+
+            .thumb {
+                width: 60px;
+                height: 100%;
+            }
+
+            .det-main-stage {
+                width: 100%;
+                height: calc(100% - 60px);
+            }
+
+            .det-info {
+                width: 100%;
+                height: 50vh;
+                padding: 30px;
+            }
+
+            .quiz-options {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .carousel-stage {
+                height: 60vh;
+            }
+
+            .video-slot {
+                width: 85vw;
+                height: 140vw;
+                top: 0;
+                bottom: 0;
+                margin: auto;
+            }
+
+            .video-slot video {
+                object-fit: contain;
+            }
+
+            .video-slot.left {
+                transform: translateX(-20%) scale(0.8);
+                opacity: 0.3;
+            }
+
+            .video-slot.right {
+                transform: translateX(20%) scale(0.8);
+                opacity: 0.3;
+            }
+
+            .nav-arrow {
+                display: none;
+            }
+        }
+
+        /* --- DRAGGABLE GRID (061) --- */
+        .drag-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 50% 50%;
+            opacity: 0;
+        }
+
+        .drag-container:active {
+            cursor: grabbing;
+        }
+
+        .drag-grid {
+            display: flex;
+            gap: 4vw;
+            position: absolute;
+            padding: 10vw;
+            width: max-content;
+            transform-origin: 50% 50%;
+            will-change: transform;
+        }
+
+        .drag-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4vw;
+            width: 18vw;
+            min-width: 250px;
+        }
+
+        .drag-col:nth-child(even) {
+            margin-top: 10vw;
+        }
+
+        .drag-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .drag-item:hover {
+            transform: scale(1.03);
+            z-index: 2;
+        }
+
+        .drag-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        /* --- VIDEO PLAYER NEW --- */
+        .video-player-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        .main-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+
+        .video-ui-controls {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .v-btn {
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            transition: 0.3s;
+            font-family: var(--font-head);
+        }
+
+        .v-btn:hover,
+        .v-btn.active {
+            opacity: 1;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        .v-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #333;
+            width: 100%;
+        }
+
+        .v-bar {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.2s linear;
+        }
+
+        /* --- INFINITE LAYERS (066) --- */
+        .infinite-layers-wrapper {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            cursor: grab;
+            position: relative;
+            background: transparent;
+        }
+
+        .infinite-layers-wrapper.dragging {
+            cursor: grabbing;
+        }
+
+        .infinite-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            will-change: transform;
+        }
+
+        .infinite-item-inner {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: box-shadow 0.3s;
+        }
+
+        .infinite-item:hover .infinite-item-inner {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .infinite-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .infinite-item:hover .infinite-img {
+            transform: scale(1.05);
+        }
+
+        .infinite-label {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            color: #fff;
+            font-size: 10px;
+            opacity: 0;
+            transition: 0.3s;
+            letter-spacing: 1px;
+            font-family: var(--font-body);
+        }
+
+        .infinite-item:hover .infinite-label {
+            opacity: 0.8;
+            bottom: -20px;
+        }
+
+        /* --- INFINITE GRID STYLES --- */
+        .infinite-layers-grid-wrapper {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            overflow: hidden;
+            user-select: none;
+            cursor: grab;
+            position: relative;
+            touch-action: none;
+            background: #000;
+        }
+
+        .infinite-layers-grid-wrapper.dragging {
+            cursor: grabbing;
+        }
+
+        .infinite-layers-grid-images {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            will-change: transform;
+        }
+
+        .item-wrapper {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .item-image {
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.3s ease;
+            width: 100%;
+            height: 100%;
+        }
+
+        .item:hover .item-image {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--accent);
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .item:hover .item-image img {
+            transform: scale(1.05);
+        }
+
+        .item-title {
+            font-family: var(--font-head);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: #fff;
+            text-shadow: 0 2px 4px #000;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .item:hover .item-title {
+            opacity: 1;
+        }
+    </style>
+    <style>
+        /* --- 3-COLUMN CINEMATIC DASHBOARD CSS --- */
+        .pv-layout-grid {
+            display: grid;
+            grid-template-columns: 25% 50% 25%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: #fff;
+        }
+
+        /* LEFT SIDEBAR */
+        .pv-sidebar-left {
+            padding: 40px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .pv-sidebar-header {
+            font-family: var(--font-head);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .pv-grid-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 2 cols in sidebar */
+            gap: 10px;
+        }
+
+        .pv-grid-item {
+            aspect-ratio: 9/16;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: 0.3s;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+
+        .pv-grid-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .pv-grid-item.active {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .pv-thumb-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        /* CENTER STAGE */
+        .pv-main-stage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .pv-viewport {
+            width: 100%;
+            max-width: 50vh;
+            /* Vertical ratio constraint */
+            aspect-ratio: 9/16;
+            height: 80vh;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 80px rgba(0, 0, 0, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pv-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pv-overlay {
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .pv-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* RIGHT SIDEBAR */
+        .pv-sidebar-right {
+            padding: 60px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: right;
+        }
+
+        .pv-tagline {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to bottom, #fff, #666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pv-desc {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            opacity: 0.6;
+            line-height: 1.6;
+        }
+
+        /* CONTROLS DECK */
+        .pv-controls-deck {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .pv-counter-large {
+            font-family: var(--font-head);
+            font-size: 4rem;
+            line-height: 1;
+        }
+
+        .pv-total-label {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            opacity: 0.5;
+            margin-top: -10px;
+        }
+
+        .pv-bar-container {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+        }
+
+        .pv-bar-fill {
+            height: 100%;
+            width: 0;
+            background: #fff;
+        }
+
+        .pv-btn-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pv-icon-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: 0.3s;
+        }
+
+        .pv-icon-btn:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .pv-play-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pv-play-circle:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            scale: 1.05;
+        }
+
+        .pv-aux-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pv-text-btn {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .pv-text-btn:hover {
+            opacity: 1;
+        }
+
+        .pv-text-btn.active {
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        /* VIDEO GALLERY LAYOUT */
+        .pv-layout-grid {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .pv-main-stage {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        .pv-back-btn {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            color: #fff;
+            font-family: var(--font-head);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            opacity: 0.5;
+            transition: 0.4s;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .pv-back-btn:hover {
+            opacity: 1;
+            left: 35px;
+        }
+
+        .pv-back-btn::before {
+            content: '';
+            width: 1px;
+            height: 50px;
+            background: #fff;
+            margin-bottom: 20px;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        @media screen and (max-width: 1024px) {
+            .pv-layout-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+                overflow-y: auto;
+            }
+
+            .pv-sidebar-left {
+                display: none;
+            }
+
+            /* Hide grid on mobile or use modal */
+            .pv-sidebar-right {
+                padding: 30px;
+                text-align: center;
+                align-items: center;
+                border: none;
+            }
+
+            .pv-controls-deck {
+                align-items: center;
+                width: 100%;
+            }
+
+            .pv-viewport {
+                width: 90%;
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <div id="homeLogo">MİNA LİDYA</div>
+
+    <div class="audio-panel">
+        <div class="lang-btn active" id="btnTR" onclick="playTrack('TR')">TR</div>
+        <div class="lang-btn" id="btnSP" onclick="playTrack('SP')">SP</div>
+        <div class="lang-btn" id="btnEN" onclick="playTrack('EN')">EN</div>
+        <div class="sound-toggle" onclick="toggleSound()">
+            <div class="equalizer" id="eqAnim">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="backBtn" onclick="backToMenu()">MENÜYE DÖN</div>
+    <div id="themeBtn" onclick="toggleTheme()">☀</div>
+
+    <!-- INTRO -->
+    <div class="intro-layer app-layer active-layer" id="introLayer">
+        <div class="intro-video-container" id="introVideoWrap"
+            style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1;">
+            <video class="intro-video" autoplay muted playsinline id="introVid"
+                style="width:100%; height:100%; object-fit:cover;">
+                <source src="" type="video/mp4">
+            </video>
+            <div id="vimeoWrap"
+                style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+            </div>
+        </div>
+        <div class="intro-content">
+            <div class="logo-container"><img src="logo.png" class="main-logo-img" onerror="this.style.display='none'">
+            </div>
+            <div class="intro-title">MİNA LİDYA</div>
+            <div class="enter-btn" onclick="enterSite()">KOLEKSİYONA GİRİŞ</div>
+            <div class="loading-text" id="loadingText">Hazırlanıyor...</div>
+        </div>
+        <div class="intro-video-link" onclick="directVideoAccess()">KAMPANYAYI İZLE</div>
+        <div class="cinematic-text-container">
+            <div class="cinematic-label">SONBAHAR / KIŞ 2026</div>
+            <div class="cinematic-title" id="cinematicText">THE BLACK SWAN</div>
+            <div class="cinematic-credits">SANAT YÖNETMENİ: MINA LIDYA<br>KONUM: VALENCIA</div>
+        </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="view-quiz app-layer hidden-layer" id="viewQuiz">
+        <div class="quiz-title">TESETTÜR TERCİHİ</div>
+        <div class="quiz-options">
+            <div class="quiz-btn" onclick="handleQuiz(true)">EVET (TESETTÜR)</div>
+            <div class="quiz-btn" onclick="handleQuiz(false)">HAYIR (STANDART)</div>
+        </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="view-menu app-layer hidden-layer" id="viewMenu">
+        <!-- New Background Image Host -->
+        <img src="" class="menu-hover-img" id="menuBgImg">
+        <div class="menu-bg-fx" id="menuFx"></div>
+        <ul class="menu-list" id="menuList"></ul>
+    </div>
+
+    <!-- GRID (New Structure) -->
+    <div class="view-grid app-layer hidden-layer" id="viewGrid">
+        <div class="infinite-layers-grid-wrapper" id="grid-wrapper">
+            <div id="images" class="infinite-layers-grid-images"></div>
+        </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="view-detail app-layer hidden-layer" id="viewDetail">
+        <!-- Close button moved to det-info via JS or HTML struct. For now, we float it. -->
+        <!-- User asked for top-left of info panel. -->
+        <div class="det-gallery-container">
+            <div class="det-main-stage">
+                <img src="" class="det-main-img" id="detMainImg" onclick="toggleFullscreen(this)">
+            </div>
+            <div class="det-thumbnails" id="detThumbnails"></div>
+        </div>
+        <div class="det-info">
+            <div class="close-det" onclick="closeDetail()" style="position:absolute; top:30px; left:30px;">×</div>
+            <div class="det-title" id="detTitle"></div>
+            <div class="det-desc" id="detDesc"></div>
+            <div class="attr-table" id="detAttrs"></div>
+            <a href="#" class="whatsapp-btn" id="detWhatsapp" target="_blank">RANDEVU AL</a>
+            <a href="#" class="shop-btn" id="detShopLink" target="_blank">SİTEDE GÖR</a>
+        </div>
+    </div>
+
+    <!-- 3D GRID LAYER -->
+    <div id="view3D" class="app-layer hidden-layer" style="background:#000;">
+        <canvas id="canvas3D" style="width:100%; height:100%; display:block;"></canvas>
+        <div id="ui3D"
+            style="position:absolute; bottom:40px; left:40px; pointer-events:none; opacity:0; transition:opacity 0.5s;">
+            <h2 id="title3D" style="font-family:var(--font-head); font-size:3rem; color:#fff; margin:0;">TITLE</h2>
+            <div style="width:50px; height:2px; background:var(--accent); margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- VIDEO GALLERY -->
+    <!-- VIDEO GALLERY (Refactored) -->
+    <!-- PREMIUM VIDEO GALLERY (New) -->
+    <div class="view-video-gallery app-layer hidden-layer" id="viewVideoGallery">
+        <div class="pv-back-btn" onclick="closeVideoGallery()">GO BACK</div>
+
+        <div class="pv-layout-grid">
+            <!-- LEFT: Video Grid/Thumbnails -->
+            <div class="pv-sidebar-left">
+                <div class="pv-sidebar-header">BÖLÜMLER</div>
+                <div class="pv-grid-list" id="pvGridList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- CENTER: Main Player -->
+            <div class="pv-main-stage" style="flex:1; display:flex; justify-content:center; align-items:center;">
+                <div class="pv-viewport">
+                    <div id="pvVideoContainer" style="width:100%; height:100%;">
+                        <video id="pvVideo" class="pv-video" playsinline webkit-playsinline></video>
+                    </div>
+                    <div class="pv-overlay"></div>
+                    <div class="pv-status" id="pvStatus">YÜKLENİYOR</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Info & Controls -->
+            <div class="pv-sidebar-right">
+                <!-- Top Text Slider -->
+                <div class="pv-text-area">
+                    <div class="pv-tagline">SİNEMATİK<br>DENEYİM</div>
+                    <div class="pv-desc" id="pvDescText">
+                        Gelinlik koleksiyonunun zarafetini bizim gözümüzden keşfedin.
+                    </div>
+                </div>
+
+                <!-- Bottom Controls -->
+                <div class="pv-controls-deck">
+                    <div class="pv-counter-large" id="pvCounter">01</div>
+                    <div class="pv-total-label">51 BÖLÜM</div>
+
+                    <div class="pv-bar-container">
+                        <div class="pv-bar-fill" id="pvBar"></div>
+                    </div>
+
+                    <div class="pv-btn-row">
+                        <div class="pv-icon-btn" onclick="VideoController.prev()">←</div>
+                        <div class="pv-play-circle" onclick="VideoController.togglePlay()" id="pvBtnPlay">
+                            PLAY
+                        </div>
+                        <div class="pv-icon-btn" onclick="VideoController.next()">→</div>
+                    </div>
+
+                    <div class="pv-aux-row">
+                        <div class="pv-text-btn" onclick="VideoController.toggleShuffle()" id="pvBtnShuffle">KARIŞTIR:
+                            KAPALI</div>
+                        <div class="pv-text-btn" onclick="VideoController.toggleMute()" id="pvBtnMute">SESİ AÇ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRAGGABLE LAYOUT (061) -->
+    <div id="viewDraggable" class="app-layer hidden-layer" style="overflow:hidden;">
+        <div id="dragContainer" style="width:100%; height:100%; cursor:grab;">
+            <div id="dragContent" style="position:absolute; top:0; left:0; display:flex; gap:50px; padding:100px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- INFINITE LAYERS (066) -->
+    <div id="viewInfinite" class="app-layer hidden-layer" style="overflow:hidden;">
+        <div id="infiniteContainer" style="width:100%; height:100%; position:relative;"></div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- VIMEO HELPER ---
+        window.VimeoHelper = {
+            playIntroID: function (id) {
+                const vid = document.getElementById('introVid');
+                const wrap = document.getElementById('vimeoWrap');
+                if (!id) { if (vid) vid.style.display = 'block'; if (wrap) wrap.style.display = 'none'; return; }
+                if (vid) vid.style.display = 'none';
+                if (wrap) {
+                    wrap.style.display = 'block';
+                    wrap.innerHTML = `<iframe src="https://player.vimeo.com/video/${id}?autoplay=1&loop=1&background=1&muted=1" frameborder="0" allow="autoplay; fullscreen" style="width:100vw; height:56.25vw; min-height:100vh; min-width:177.77vh; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);"></iframe>`;
+                }
+            },
+            getGalleryIframe: function (id) {
+                return `<iframe src="https://player.vimeo.com/video/${id}?autoplay=1&color=ffffff&title=0&byline=0&portrait=0" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+            }
+        };
+
+        // --- SHARED UTILS ---
+        const loader = new THREE.TextureLoader();
+        loader.setCrossOrigin('anonymous');
+
+        // --- GLOBAL LANG & TRANS ---
+        // Simplified Translation logic based on user's request
+        window.CURRENT_LANG = 'tr';
+        window.activeProduct = null;
+        window.VIMEO_INTRO_IDS = ["1154450893", "1154450767", "1122776579"];
+        window.VIMEO_GALLERY_IDS = [
+            "1126891605", "1126890337", "1126888838", "1126886239", "1126795139",
+            "1125173455", "1125108505", "1125090078", "1125085930", "1124984602",
+            "1124981390", "1124935734", "1123692318", "1123661574", "1123655017",
+            "1123654415", "1123653947", "1123653371", "1123652747", "1123652156",
+            "1123650387", "1123649964", "1123649452", "1123648391", "1123640684",
+            "1122703125", "1122702945", "1122702380", "1122702249", "1122701798",
+            "1122701675", "1122701170", "1122701089", "1122699433", "1122698885",
+            "1122698033", "1122697732", "1122697269", "1122696477", "1122696356",
+            "1122695320", "1122694887", "1122693719", "1122693624", "1122693487",
+            "1122693417", "1122693283", "1122693202", "1122693080", "1122692810",
+            "1122328337"
+        ];
+        window.TRANSLATIONS = {
+            tr: {
+                enter: "KOLEKSİYONA GİRİŞ", loading: "Gelinlikler Hazırlanıyor...", film: "MODA FİLMİ",
+                back: "MENÜYE DÖN", book: "RANDEVU AL", view: "SİTEDE GÖR",
+                quiz: "TESETTÜR TERCİHİNİZ?", q_yes: "EVET (TESETTÜR)", q_no: "HAYIR (STANDART)",
+                category_1: "GERÇEK ZERAFET", category_2: "RENKLİ ETKİNLİKLER", category_3: "GECE YARISI", category_4: "AKSESUARLAR"
+            }
+        };
+
+        // --- WEDDING OM DATA INJECTION ---
+        const PRODUCT_DESC_MAP = {
+            "29985": { tr: "Zarafeti geçmişten bu yana bu özel tasarım gelinlikle buluşturuyor...", en: "Combining elegance from the past with this special design..." },
+            "29950": { tr: "Zamansız zarafeti modern couture detaylarla buluşturan...", en: "Meeting timeless elegance with modern couture details..." }
+        };
+
+        const ATTR_VAL_MAP = {
+            "İpek": { en: "Silk", tr: "İpek", es: "Seda", fr: "Soie", de: "Seide", nl: "Zijde" },
+            "Saten": { en: "Satin", tr: "Saten", es: "Satén", fr: "Satin", de: "Satin", nl: "Satijn" },
+            "Dantel": { en: "Lace", tr: "Dantel", es: "Encaje", fr: "Dentelle", de: "Spitze", nl: "Kant" },
+            "Tül": { en: "Tulle", tr: "Tül", es: "Tul", fr: "Tulle", de: "Tüll", nl: "Tule" },
+            "Gelinlik": { en: "Bridal", tr: "Gelinlik", es: "Novia", fr: "Mariée", de: "Braut", nl: "Bruid" },
+            "Abiye": { en: "Evening Wear", tr: "Abiye", es: "Fiesta", fr: "Soirée", de: "Abendmode", nl: "Avondmode" },
+            "A Kesim": { en: "A-Line", tr: "A Kesim", es: "Línea A", fr: "Ligne A", de: "A-Linie", nl: "A-Lijn" },
+            "Balık": { en: "Mermaid", tr: "Balık", es: "Sirena", fr: "Sirène", de: "Meerjungfrau", nl: "Zeemeermin" },
+            "Prenses": { en: "Princess", tr: "Prenses", es: "Princesa", fr: "Princesse", de: "Prinzessin", nl: "Prinses" },
+            "Evet": { en: "Yes", tr: "Evet", es: "Sí", fr: "Oui", de: "Ja", nl: "Ja" },
+            "Hayır": { en: "No", tr: "Hayır", es: "No", fr: "Non", de: "Nein", nl: "Nee" }
+        };
+
+        // Helper for Data Objects (e.g. {en: "Title", tr: "Baslik"})
+        window.tData = (obj) => {
+            if (obj === null || obj === undefined) return "";
+
+            let str = obj;
+            if (typeof obj === 'object') {
+                str = obj[window.CURRENT_LANG] || obj['tr'] || obj['en'] || "";
+            }
+
+            // Normalization for common WC patterns
+            const upperStr = str.toUpperCase().trim();
+
+            // Category Mapping (Based on common WC names in Turkish)
+            if (upperStr.includes("GELİNLİK")) return window.t('category_1');
+            if (upperStr.includes("KINA") || upperStr.includes("NİŞAN")) return window.t('category_2');
+            if (upperStr.includes("ABİYE") || upperStr.includes("GECE")) return window.t('category_3');
+            if (upperStr.includes("AKSESUAR")) return window.t('category_4');
+
+            // Attribute Value Mapping (Dictionary lookup)
+            // We search for partial matches if needed, but strict for now
+            if (ATTR_VAL_MAP[str]) return ATTR_VAL_MAP[str][window.CURRENT_LANG] || ATTR_VAL_MAP[str]['en'] || str;
+
+            // Try matching normalized
+            for (let k in ATTR_VAL_MAP) {
+                if (k.toUpperCase() === upperStr) return ATTR_VAL_MAP[k][window.CURRENT_LANG] || ATTR_VAL_MAP[k]['en'] || str;
+            }
+
+            return str;
+        };
+
+        // Attribute Key Map
+        const ATTR_MAP = {
+            en: { "Material": "Material", "Size": "Size", "Collection": "Collection", "Color": "Color", "Style": "Style", "Decor": "Decor", "Type": "Type", "Veil": "Veil", "Inspiration": "Inspiration", "Event": "Event" },
+            tr: { "Material": "Malzeme", "Size": "Beden", "Collection": "Koleksiyon", "Color": "Renk", "Style": "Tarz", "Decor": "Dekor", "Type": "Tür", "Veil": "Duvak", "Inspiration": "İlham", "Event": "Etkinlik" },
+            es: { "Material": "Material", "Size": "Talla", "Collection": "Colección", "Color": "Color", "Style": "Estilo", "Decor": "Decoración", "Type": "Tipo", "Veil": "Velo", "Inspiration": "Inspiración", "Event": "Evento" },
+            fr: { "Material": "Matériel", "Size": "Taille", "Collection": "Collection", "Color": "Couleur", "Style": "Style", "Decor": "Décor", "Type": "Type", "Veil": "Voile", "Inspiration": "Inspiration", "Event": "Événement" },
+            de: { "Material": "Material", "Size": "Größe", "Collection": "Kollektion", "Color": "Farbe", "Style": "Stil", "Decor": "Dekor", "Type": "Typ", "Veil": "Schleier", "Inspiration": "Inspiratie", "Event": "Ereignis" },
+            nl: { "Material": "Materiaal", "Size": "Maat", "Collection": "Collectie", "Color": "Kleur", "Style": "Stijl", "Decor": "Decor", "Type": "Type", "Veil": "Sluier", "Inspiration": "Inspiratie", "Event": "Evenement" }
+        };
+
+        window.tAttr = (key) => {
+            const map = ATTR_MAP[window.CURRENT_LANG] || ATTR_MAP['en'];
+            return map[key] || key;
+        };
+
+        window.t = (key) => {
+            const l = window.TRANSLATIONS['tr'];
+            return (l && l[key]) ? l[key] : key;
+        };
+
+        window.setLang = (lang) => {
+            window.CURRENT_LANG = lang;
+            document.querySelectorAll('.lang-opt').forEach(el => el.classList.remove('active'));
+            const activeEl = Array.from(document.querySelectorAll('.lang-opt')).find(e => e.innerText.toLowerCase() === lang);
+            if (activeEl) activeEl.classList.add('active');
+
+            // Updates
+            document.querySelector('.enter-btn').innerText = window.t('enter');
+            document.getElementById('loadingText').innerText = window.t('loading');
+            document.getElementById('backBtn').innerText = window.t('back');
+            document.getElementById('detWhatsapp').innerText = window.t('book');
+            document.getElementById('detShopLink').innerText = window.t('view');
+            // Quiz
+            document.querySelector('.quiz-title').innerText = window.t('quiz');
+            document.querySelectorAll('.quiz-btn')[0].innerText = window.t('q_yes');
+            document.querySelectorAll('.quiz-btn')[1].innerText = window.t('q_no');
+
+            // Refresh Active Views
+            if (document.getElementById('viewMenu').classList.contains('active-layer')) initMenu();
+            if (document.getElementById('viewGrid').classList.contains('active-layer')) openInfiniteGrid(CURRENT_CAT_PRODUCTS);
+            if (document.getElementById('viewDetail').classList.contains('active-layer')) {
+                const attrTable = document.getElementById('detAttrs'); attrTable.innerHTML = "";
+                if (window.activeProduct && window.activeProduct.attributes) {
+                    for (const [key, value] of Object.entries(window.activeProduct.attributes)) {
+                        attrTable.innerHTML += `<div class="attr-row"><span class="attr-label">${window.tAttr(key)}</span><span class="attr-val">${window.tData(value)}</span></div>`;
+                    }
+                }
+            }
+        }
+
+
+
+        function handleMenuClick(e, el, action, id) { action(); }
+
+        // --- INFINITE GRID LOGIC ---
+        function openInfiniteGrid(prods) {
+            const container = document.getElementById('images');
+            if (!container) return;
+
+            // Clean up previous instance
+            if (window.gridInstance) {
+                window.gridInstance.destroy();
+                window.gridInstance = null;
+            }
+
+            // Prepare Data
+            // Map WooCommerce products to InfiniteGrid format
+            const sources = prods.map(p => {
+                const safeTitle = window.tData(p.title || p.name || "Untitled");
+                const rawDesc = p.desc || p.short_description || p.description || "";
+                const safeDesc = window.tData(rawDesc).replace(/<[^>]*>?/gm, '').trim();
+
+                return {
+                    src: (p.gallery && p.gallery.length > 0) ? p.gallery[0] : "logo.png",
+                    title: safeTitle,
+                    subtitle: window.tAttr('Collection'),
+                    caption: (safeDesc.substring(0, 60) || "Mina Lidya Couture") + "...",
+                    link: null,
+                    originalData: p
+                };
+            });
+
+            // Define Grid Positions (Cyclic pattern)
+            const gridData = [
+                { x: 71, y: 58, w: 400, h: 270 },
+                { x: 211, y: 255, w: 540, h: 360 },
+                { x: 631, y: 158, w: 400, h: 270 },
+                { x: 1191, y: 245, w: 260, h: 195 },
+                { x: 351, y: 687, w: 260, h: 290 },
+                { x: 751, y: 824, w: 205, h: 154 },
+                { x: 911, y: 540, w: 260, h: 350 },
+                { x: 1051, y: 803, w: 400, h: 300 },
+                { x: 71, y: 922, w: 350, h: 260 }
+            ];
+
+            const originalSize = { w: 1522, h: 1238 };
+
+            // Initialize
+            window.gridInstance = new InfiniteGrid({
+                el: container,
+                sources: sources,
+                data: gridData,
+                originalSize: originalSize
+            });
+
+            switchLayer('viewGrid');
+        }
+        window.openInfiniteGrid = openInfiniteGrid;
+
+        class InfiniteGrid {
+            constructor({ el, sources, data, originalSize }) {
+                this.$container = el;
+                this.sources = sources;
+                this.data = data;
+                this.originalSize = originalSize;
+
+                this.config = {
+                    scrollEase: 0.08,
+                    autoScroll: true,
+                    parallaxIntensity: 0.6,
+                    imageScale: 1.1,
+                    showCaptions: true
+                };
+
+                this.scroll = {
+                    ease: this.config.scrollEase,
+                    current: { x: 0, y: 0 },
+                    target: { x: 0, y: 0 },
+                    last: { x: 0, y: 0 },
+                    delta: { x: { c: 0, t: 0 }, y: { c: 0, t: 0 } }
+                };
+
+                this.isDragging = false;
+                this.drag = { startX: 0, startY: 0, scrollX: 0, scrollY: 0 };
+                this.touchMoved = false;
+
+                this.mouse = { x: { t: 0.5, c: 0.5 }, y: { t: 0.5, c: 0.5 }, press: { t: 0, c: 0 } };
+
+                this.items = [];
+                this.autoScrollTween = null;
+                this.autoScrollTimeout = null;
+                this.userInteracted = false;
+
+                this.bindEvents();
+                this.onResize();
+                this.render();
+
+                if (this.config.autoScroll) this.scheduleAutoScroll();
+            }
+
+            bindEvents() {
+                this.onResize = this.onResize.bind(this);
+                this.onWheel = this.onWheel.bind(this);
+                this.onMouseMove = this.onMouseMove.bind(this);
+                this.onMouseDown = this.onMouseDown.bind(this);
+                this.onMouseUp = this.onMouseUp.bind(this);
+                this.onTouchStart = this.onTouchStart.bind(this);
+                this.onTouchMove = this.onTouchMove.bind(this);
+                this.onTouchEnd = this.onTouchEnd.bind(this);
+                this.render = this.render.bind(this);
+
+                window.addEventListener('resize', this.onResize);
+                window.addEventListener('wheel', this.onWheel, { passive: false });
+                window.addEventListener('mousemove', this.onMouseMove);
+                this.$container.addEventListener('mousedown', this.onMouseDown);
+                window.addEventListener('mouseup', this.onMouseUp);
+                this.$container.addEventListener('touchstart', this.onTouchStart, { passive: false });
+                this.$container.addEventListener('touchmove', this.onTouchMove, { passive: false });
+                this.$container.addEventListener('touchend', this.onTouchEnd, { passive: false });
+            }
+
+            onResize() {
+                this.winW = window.innerWidth;
+                this.winH = window.innerHeight;
+                // Responsive sizing logic
+                this.tileSize = {
+                    w: this.winW,
+                    h: (this.winW) * (this.originalSize.h / this.originalSize.w)
+                };
+
+                // Initialization Reset
+                this.scroll.current = { x: 0, y: 0 };
+                this.scroll.target = { x: 0, y: 0 };
+                this.scroll.last = { x: 0, y: 0 };
+                this.$container.innerHTML = '';
+
+                const baseItems = this.data.map((d, i) => {
+                    const scaleX = this.tileSize.w / this.originalSize.w;
+                    const scaleY = this.tileSize.h / this.originalSize.h;
+                    const source = this.sources[i % this.sources.length];
+                    return {
+                        src: source.src,
+                        title: source.title,
+                        originalData: source.originalData, // Keep reference
+                        x: d.x * scaleX, y: d.y * scaleY, w: d.w * scaleX, h: d.h * scaleY
+                    };
+                });
+
+                this.items = [];
+                const repsX = [0, this.tileSize.w];
+                const repsY = [0, this.tileSize.h];
+
+                baseItems.forEach(base => {
+                    repsX.forEach(offsetX => {
+                        repsY.forEach(offsetY => {
+                            const el = document.createElement('div');
+                            el.classList.add('item');
+                            el.style.width = `${base.w}px`;
+
+                            const wrapper = document.createElement('div');
+                            wrapper.classList.add('item-wrapper');
+                            wrapper.onclick = () => {
+                                if (this.isDragging) return; // Prevent click on drag
+                                openDetail(base.originalData);
+                            };
+
+                            const itemImage = document.createElement('div');
+                            itemImage.classList.add('item-image');
+                            itemImage.style.width = `${base.w}px`;
+                            itemImage.style.height = `${base.h}px`;
+
+                            const img = new Image();
+                            img.src = base.src;
+                            img.loading = 'lazy';
+                            itemImage.appendChild(img);
+
+                            const title = document.createElement('div');
+                            title.classList.add('item-title');
+                            title.textContent = base.title;
+
+                            wrapper.appendChild(itemImage);
+                            wrapper.appendChild(title);
+                            el.appendChild(wrapper);
+                            this.$container.appendChild(el);
+
+                            this.items.push({
+                                el, img,
+                                x: base.x + offsetX, y: base.y + offsetY,
+                                w: base.w, h: base.h,
+                                extraX: 0, extraY: 0,
+                                rect: el.getBoundingClientRect(),
+                                ease: Math.random() * 0.5 + 0.5
+                            });
+                        });
+                    });
+                });
+
+                this.tileSize.w *= 2;
+                this.tileSize.h *= 2;
+
+                // Initial Layout Calc
+                this.scroll.current.x = this.scroll.target.x = this.scroll.last.x = -this.winW * 0.1;
+                this.scroll.current.y = this.scroll.target.y = this.scroll.last.y = -this.winH * 0.1;
+            }
+
+            onWheel(e) {
+                this.handleUserInteraction();
+                e.preventDefault();
+                this.scroll.target.x -= e.deltaX * 0.5;
+                this.scroll.target.y -= e.deltaY * 0.5;
+            }
+
+            onMouseDown(e) {
+                this.handleUserInteraction();
+                this.isDragging = false; // Will trigger on move
+                document.documentElement.classList.add('dragging');
+                this.mouse.press.t = 1;
+                this.drag.startX = e.clientX;
+                this.drag.startY = e.clientY;
+                this.drag.scrollX = this.scroll.target.x;
+                this.drag.scrollY = this.scroll.target.y;
+            }
+
+            onMouseUp() {
+                // Logic to distinguish click vs drag is handled in wrapper.onclick check
+                // But we also reset dragging state here
+                setTimeout(() => { this.isDragging = false; }, 50);
+                document.documentElement.classList.remove('dragging');
+                this.mouse.press.t = 0;
+            }
+
+            onMouseMove(e) {
+                this.mouse.x.t = e.clientX / this.winW;
+                this.mouse.y.t = e.clientY / this.winH;
+
+                if (this.mouse.press.t === 1) { // If mouse down
+                    const dx = e.clientX - this.drag.startX;
+                    const dy = e.clientY - this.drag.startY;
+                    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) this.isDragging = true;
+
+                    if (this.isDragging) {
+                        this.scroll.target.x = this.drag.scrollX + dx;
+                        this.scroll.target.y = this.drag.scrollY + dy;
+                    }
+                }
+            }
+
+            onTouchStart(e) {
+                this.handleUserInteraction();
+                if (e.touches.length === 1) {
+                    this.touchMoved = false;
+                    const touch = e.touches[0];
+                    this.drag.startX = touch.clientX;
+                    this.drag.startY = touch.clientY;
+                    this.drag.scrollX = this.scroll.target.x;
+                    this.drag.scrollY = this.scroll.target.y;
+                }
+            }
+
+            onTouchMove(e) {
+                if (!this.userInteracted) this.handleUserInteraction();
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const dx = touch.clientX - this.drag.startX;
+                    const dy = touch.clientY - this.drag.startY;
+
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                        if (!this.touchMoved) {
+                            this.touchMoved = true;
+                            this.isDragging = true;
+                            this.mouse.press.t = 1;
+                        }
+                        e.preventDefault();
+                        this.scroll.target.x = this.drag.scrollX + dx;
+                        this.scroll.target.y = this.drag.scrollY + dy;
+                    }
+                }
+            }
+
+            onTouchEnd() {
+                this.isDragging = false;
+                this.touchMoved = false;
+                this.mouse.press.t = 0;
+            }
+
+            render() {
+                this.scroll.current.x += (this.scroll.target.x - this.scroll.current.x) * this.scroll.ease;
+                this.scroll.current.y += (this.scroll.target.y - this.scroll.current.y) * this.scroll.ease;
+
+                this.mouse.x.c += (this.mouse.x.t - this.mouse.x.c) * 0.05;
+                this.mouse.y.c += (this.mouse.y.t - this.mouse.y.c) * 0.05;
+                this.mouse.press.c += (this.mouse.press.t - this.mouse.press.c) * 0.05;
+
+                const scrollX = this.scroll.current.x;
+                const scrollY = this.scroll.current.y;
+                const dirX = scrollX > this.scroll.last.x ? 'right' : 'left';
+                const dirY = scrollY > this.scroll.last.y ? 'down' : 'up';
+
+                this.items.forEach(item => {
+                    let posX = item.x + scrollX + item.extraX;
+                    let posY = item.y + scrollY + item.extraY;
+
+                    // Parallax add
+                    posX += (this.mouse.x.c - 0.5) * item.rect.width * this.config.parallaxIntensity;
+                    posY += (this.mouse.y.c - 0.5) * item.rect.height * this.config.parallaxIntensity;
+
+                    // Infinite Loop Check
+                    if (dirX === 'right' && posX > this.winW) item.extraX -= this.tileSize.w;
+                    if (dirX === 'left' && posX + item.rect.width < 0) item.extraX += this.tileSize.w;
+                    if (dirY === 'down' && posY > this.winH) item.extraY -= this.tileSize.h;
+                    if (dirY === 'up' && posY + item.rect.height < 0) item.extraY += this.tileSize.h;
+
+                    // Recalculate for transform with wrapping
+                    const finalX = item.x + scrollX + item.extraX + (this.mouse.x.c - 0.5) * item.rect.width * this.config.parallaxIntensity;
+                    const finalY = item.y + scrollY + item.extraY + (this.mouse.y.c - 0.5) * item.rect.height * this.config.parallaxIntensity;
+
+                    item.el.style.transform = `translate(${finalX}px, ${finalY}px)`;
+                    // Inner Image Parallax
+                    item.img.style.transform = `scale(${this.config.imageScale + 0.1 * this.mouse.press.c}) translate(${-this.mouse.x.c * 5}%, ${-this.mouse.y.c * 5}%)`;
+                });
+
+                this.scroll.last.x = this.scroll.current.x;
+                this.scroll.last.y = this.scroll.current.y;
+
+                requestAnimationFrame(this.render);
+            }
+
+            handleUserInteraction() {
+                if (this.userInteracted) return;
+                this.userInteracted = true;
+                this.stopAutoScroll();
+            }
+
+            startAutoScroll() {
+                if (this.autoScrollTween) return;
+                this.autoScrollTween = gsap.to(this.scroll.target, {
+                    x: "+=200", y: "-=150", duration: 10, repeat: -1, yoyo: true, ease: "none"
+                });
+            }
+            stopAutoScroll() {
+                if (this.autoScrollTween) { this.autoScrollTween.kill(); this.autoScrollTween = null; }
+            }
+            scheduleAutoScroll() {
+                setTimeout(() => { if (!this.userInteracted) this.startAutoScroll(); }, 2000);
+            }
+            destroy() {
+                window.removeEventListener('resize', this.onResize);
+                window.removeEventListener('wheel', this.onWheel);
+                window.removeEventListener('mousemove', this.onMouseMove);
+                // Add other cleanup if needed
+            }
+        }
+
+        // --- DETAIL LOGIC UPDATED ---
+        window.openDetailFrom3D = (prodIndexOrId) => {
+            let p;
+            if (typeof prodIndexOrId === 'number' && prodIndexOrId < CURRENT_CAT_PRODUCTS.length) {
+                p = CURRENT_CAT_PRODUCTS[prodIndexOrId];
+                currentProdIndex = prodIndexOrId;
+            } else {
+                p = CURRENT_CAT_PRODUCTS[0];
+            }
+            if (p) openDetail(p);
+        };
+
+        window.openDetail = (p) => {
+            window.activeProduct = p;
+            const view = document.getElementById('viewDetail');
+            gsap.to('#backBtn', { opacity: 1, visibility: 'visible', duration: 0.3 });
+            const mainImg = document.getElementById('detMainImg'); mainImg.classList.remove('fullscreen');
+
+            const content = document.querySelectorAll('.det-main-img, .det-info');
+            gsap.to(content, {
+                opacity: 0, y: 20, duration: 0.3, onComplete: () => {
+                    document.getElementById('detTitle').innerText = window.tData(p.title);
+                    document.getElementById('detDesc').innerHTML = window.tData(p.desc);
+
+                    // Shop Link Logic (TR only logic preserved or simplified?)
+                    // User mentioned "turkish selected... attributes Turkish".
+                    // I will simplify: Always show button, text translates.
+                    document.getElementById('detShopLink').style.display = 'block';
+                    document.getElementById('detShopLink').href = p.permalink;
+
+                    document.getElementById('detWhatsapp').href = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(window.tData(p.title))}`;
+
+                    const attrTable = document.getElementById('detAttrs'); attrTable.innerHTML = "";
+                    if (p.attributes) {
+                        for (const [key, value] of Object.entries(p.attributes)) {
+                            // Translate both key and value
+                            attrTable.innerHTML += `<div class="attr-row"><span class="attr-label">${window.tAttr(key)}</span><span class="attr-val">${window.tData(value)}</span></div>`;
+                        }
+                    }
+
+                    mainImg.style.display = 'block';
+                    mainImg.style.maxHeight = '60vh';
+                    mainImg.style.width = 'auto';
+                    mainImg.src = p.gallery[0];
+
+                    const thumbContainer = document.getElementById('detThumbnails'); thumbContainer.innerHTML = "";
+                    p.gallery.forEach((imgSrc, index) => {
+                        const thumb = document.createElement('img'); thumb.src = imgSrc;
+                        thumb.className = (index === 0) ? 'thumb active' : 'thumb';
+                        thumb.onclick = () => {
+                            gsap.to(mainImg, { opacity: 0, duration: 0.2, onComplete: () => { mainImg.src = imgSrc; gsap.to(mainImg, { opacity: 1, duration: 0.2 }); } });
+                            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); thumb.classList.add('active');
+                        };
+                        thumbContainer.appendChild(thumb);
+                    });
+
+                    switchLayer('viewDetail');
+                    gsap.to(content, { opacity: 1, y: 0, duration: 0.5, delay: 0.1 });
+                }
+            });
+        }
+
+        // --- ENGINE 069: MOUSE IMAGE GALLERY (New) ---
+        class EngineMouseGallery {
+            constructor(canvas, products) {
+                this.canvas = canvas;
+                this.products = products;
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 0, 10);
+
+                this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                this.mouse = new THREE.Vector2();
+                this.raycaster = new THREE.Raycaster();
+                this.meshes = [];
+                this.uniforms = [];
+                this.time = 0;
+
+                this.init();
+            }
+
+            init() {
+                // Layout logic: Random scatter or Grid? 069 uses scattered positions.
+                // We'll generate random positions for the products.
+
+                const vertexShader = `
+                    varying vec2 vUv; uniform vec2 uDelta; float PI = 3.141592653589793238;
+                    void main() {
+                        vUv = uv;
+                        vec3 newPosition = position;
+                        newPosition.x += sin(uv.y * PI) * uDelta.x * 0.15;
+                        newPosition.y += sin(uv.x * PI) * uDelta.y * 0.15;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+                    }
+                `;
+                const fragmentShader = `
+                    uniform sampler2D uTexture; varying vec2 vUv; uniform float uOpacity;
+                    void main() {
+                        vec3 texture = texture2D(uTexture, vUv).rgb;
+                        gl_FragColor = vec4(texture, uOpacity);
+                    }
+                `;
+
+                this.products.forEach((p, i) => {
+                    // Limit to 20 to avoid clutter if too many
+                    if (i > 20) return;
+
+                    const tex = loader.load(p.gallery[0]);
+                    const geometry = new THREE.PlaneGeometry(5, 7, 20, 20); // Portrait aspect
+
+                    const uniform = {
+                        uTexture: { value: tex },
+                        uDelta: { value: new THREE.Vector2(0, 0) },
+                        uOpacity: { value: 1 }
+                    };
+                    this.uniforms.push(uniform);
+
+                    const material = new THREE.ShaderMaterial({
+                        uniforms: uniform, vertexShader, fragmentShader, transparent: true
+                    });
+
+                    const mesh = new THREE.Mesh(geometry, material);
+                    // Wide Spread for Mouse Gallery
+                    mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 10);
+                    // Smaller images as requested: "gorseller daha kucuk olsun"
+                    const s = 0.5 + Math.random() * 0.3;
+                    mesh.scale.setScalar(s);
+
+                    mesh.userData = { id: i, title: p.title };
+                    this.scene.add(mesh);
+                    this.meshes.push(mesh);
+                });
+
+                this.addEvents();
+                this.animate();
+            }
+
+            addEvents() {
+                this.onMove = (e) => {
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                    this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.meshes);
+                    const ui = document.getElementById('ui3D');
+
+                    document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+                    if (intersects.length > 0) {
+                        document.getElementById('title3D').innerText = intersects[0].object.userData.title;
+                        ui.style.opacity = 1;
+                    } else {
+                        ui.style.opacity = 0;
+                    }
+                };
+                window.addEventListener('mousemove', this.onMove);
+                window.addEventListener('touchmove', this.onMove, { passive: true });
+
+                this.onClick = (e) => {
+                    if (e.touches && this.isDragging) return;
+                    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+                    const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+                    this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                    this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.meshes);
+                    if (intersects.length > 0) {
+                        window.openDetailFrom3D(intersects[0].object.userData.id);
+                    }
+                };
+                window.addEventListener('click', this.onClick);
+                window.addEventListener('touchend', this.onClick, { passive: true });
+            }
+
+            animate() {
+                if (this.destroyed) return;
+
+                // Camera Float
+                this.camera.position.x += (this.mouse.x * 2 - this.camera.position.x) * 0.05;
+                this.camera.position.y += (this.mouse.y * 2 - this.camera.position.y) * 0.05;
+
+                // Update Uniforms
+                this.meshes.forEach((mesh, i) => {
+                    // Spread out more - simple fix for "ustuste kaliyor"
+                    // Check overlap? No, just random spread range increased in init.
+
+                    const u = this.uniforms[i];
+                    const dx = mesh.position.x - this.camera.position.x;
+                    const dy = mesh.position.y - this.camera.position.y;
+                    u.uDelta.value.x = dx * 0.1;
+                    u.uDelta.value.y = dy * 0.1;
+
+                    // Hover Effect from request: "arkada kalanlar one cikabilir"
+                    // Checking distance to camera or mouse proximity?
+                    // Let's bring hovered item to front or scale up
+                    // We are doing scale up in simple logic via raycast?
+                    // We need z-index manipulation or similar. 
+                    // In 3D, closer Z renders on top.
+                    // The raycaster logic already highlights. We can boost Z slightly if hovered?
+                    // Implemented in addEvents hover logic below if needed.
+                });
+
+                this.renderer.render(this.scene, this.camera);
+                requestAnimationFrame(() => this.animate());
+            }
+
+            destroy() {
+                this.destroyed = true;
+                window.removeEventListener('mousemove', this.onMove);
+                window.removeEventListener('touchmove', this.onMove);
+                window.removeEventListener('click', this.onClick);
+                window.removeEventListener('touchend', this.onClick);
+                this.renderer.clear();
+            }
+        }
+
+        // --- DOM ENGINE: DRAGGABLE GRID (061) ---
+        class EngineDraggable {
+            constructor(products) {
+                this.products = products;
+                this.container = document.getElementById('dragContainer');
+                this.content = document.getElementById('dragContent');
+                this.init();
+            }
+            init() {
+                this.content.innerHTML = "";
+                // Build Columns
+                const cols = 10;
+                // We'll create simple list for now or columns
+                // Let's use the columns approach from 061
+                let colDivs = [];
+                for (let i = 0; i < cols; i++) {
+                    let d = document.createElement('div'); d.className = 'drag-col';
+                    this.content.appendChild(d);
+                    colDivs.push(d);
+                }
+
+                this.products.forEach((p, i) => {
+                    const cIndex = i % cols;
+                    const item = document.createElement('div'); item.className = 'drag-item';
+                    item.innerHTML = `<img src="${p.gallery[0]}" class="drag-img">`;
+                    item.onclick = () => window.openDetailFrom3D(i);
+                    colDivs[cIndex].appendChild(item);
+                });
+
+                // Center logic
+                const wW = window.innerWidth;
+                const wH = window.innerHeight;
+                // Wait for render? We just assume some width.
+                // Animate entry
+                gsap.set(this.container, { opacity: 1 });
+                gsap.fromTo(this.content, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power2.out" });
+
+                // Enable Draggable
+                if (window.Draggable) {
+                    Draggable.create(this.content, {
+                        type: "x,y",
+                        inertia: true,
+                        edgeResistance: 0.5,
+                        bounds: null // Endless feel
+                    });
+                }
+            }
+            destroy() {
+                // Kill draggable?
+                const d = Draggable.get(this.content);
+                if (d) d.kill();
+                this.content.innerHTML = "";
+            }
+        }
+
+        // --- ENGINE 164: THE VOID (Playground integration) ---
+        class EngineVoid {
+            constructor(canvas, products) {
+                this.canvas = canvas;
+                this.products = products;
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 2000);
+                this.camera.position.z = 100;
+
+                this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+                this.scene.background = new THREE.Color(0x0a0a0a);
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+                this.items = [];
+                this.mouse = new THREE.Vector2();
+                this.targetMouse = new THREE.Vector2();
+                this.scroll = 0;
+                this.targetScroll = 0;
+                this.velocity = 0;
+                this.time = 0;
+                this.raycaster = new THREE.Raycaster();
+
+                this.init();
+            }
+
+            init() {
+                if (!this.products || this.products.length === 0) { console.warn("EngineVoid: products empty"); return; }
+                console.log("EngineVoid: init with", this.products.length, "items");
+                let dispItems = [...this.products, ...this.products];
+                if (dispItems.length < 10) dispItems = [...dispItems, ...dispItems, ...dispItems];
+
+                const geom = new THREE.PlaneGeometry(15, 10, 24, 24);
+
+                dispItems.forEach((p, i) => {
+                    const tex = loader.load(p.gallery[0]);
+                    const mat = new THREE.ShaderMaterial({
+                        uniforms: {
+                            uTex: { value: tex },
+                            uTime: { value: 0 },
+                            uVelocity: { value: 0 },
+                            uPower: { value: 0.1 },
+                            uMomentum: { value: 1.0 }
+                        },
+                        vertexShader: `
+                            varying vec2 vUv; uniform float uTime; uniform float uVelocity; uniform float uPower; uniform float uMomentum;
+                            void main(){
+                                vUv = uv;
+                                vec3 p = position;
+                                float v = clamp(uVelocity, -2.0, 2.0);
+                                float stretch = v * uPower; 
+                                p.x += stretch * (uv.y - 0.5);
+                                p.z += abs(v * uPower) * sin(uv.x * 2.0);
+                                gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+                            }
+                        `,
+                        fragmentShader: `
+                            uniform sampler2D uTex; varying vec2 vUv; uniform float uVelocity; uniform float uPower;
+                            void main(){
+                                vec2 uv = vUv;
+                                float v = clamp(uVelocity, -2.0, 2.0);
+                                float shift = v * 0.02 * uPower;
+                                float r = texture2D(uTex, uv + vec2(shift, 0.0)).r;
+                                float g = texture2D(uTex, uv).g;
+                                float b = texture2D(uTex, uv - vec2(shift, 0.0)).b;
+                                gl_FragColor = vec4(r, g, b, 1.0);
+                            }
+                        `,
+                        transparent: true,
+                        side: THREE.DoubleSide
+                    });
+
+                    const mesh = new THREE.Mesh(geom, mat);
+
+                    // Auto-adjust scale on load
+                    tex.onUpdate = () => {
+                        if (tex.image) {
+                            const aspect = tex.image.width / tex.image.height;
+                            mesh.scale.x = (10 * aspect) / 15;
+                        }
+                    };
+
+                    this.scene.add(mesh);
+                    mesh.userData = { id: i % this.products.length, title: window.tData(p.title) };
+
+                    // VOID Layout
+                    mesh.position.set(
+                        (Math.random() - 0.5) * 90,
+                        (Math.random() - 0.5) * 70,
+                        50 - (i * (300 / dispItems.length))
+                    );
+                    mesh.rotation.z = (Math.random() - 0.5) * 0.2;
+
+                    this.items.push({ mesh, i, velocity: new THREE.Vector3(0, 0, 0) });
+                });
+
+                this.addEvents();
+                this.animate();
+            }
+
+            addEvents() {
+                this.mouseDownPos = new THREE.Vector2();
+
+                this.onDown = (e) => {
+                    this.isDragging = false;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    this.mouseDownPos.set(clientX, clientY);
+                    this.startScroll = this.targetScroll;
+                    window.addEventListener('mouseup', onUp);
+                    window.addEventListener('touchend', onUp);
+                };
+
+                this.onMove = (e) => {
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                    if (this.mouseDownPos.x !== 0) {
+                        const dy = clientY - this.mouseDownPos.y;
+                        if (Math.abs(dy) > 10) this.isDragging = true;
+                        if (this.isDragging) this.targetScroll = this.startScroll - dy * 0.1;
+                    }
+
+                    this.targetMouse.x = (clientX / window.innerWidth) * 2 - 1;
+                    this.targetMouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const hits = this.raycaster.intersectObjects(this.scene.children);
+                    const ui = document.getElementById('ui3D');
+
+                    if (hits.length > 0) {
+                        document.body.style.cursor = 'pointer';
+                        document.getElementById('title3D').innerText = hits[0].object.userData.title;
+                        ui.style.opacity = 1;
+                    } else {
+                        document.body.style.cursor = 'default';
+                        ui.style.opacity = 0;
+                    }
+                };
+
+                this.onWheel = (e) => {
+                    this.targetScroll -= e.deltaY * 0.05;
+                };
+
+                this.onClick = (e) => {
+                    if (this.isDragging) return;
+                    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+                    const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+                    const dx = clientX - this.mouseDownPos.x;
+                    const dy = clientY - this.mouseDownPos.y;
+                    if (Math.sqrt(dx * dx + dy * dy) > 10) return; // Ignore drag
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const hits = this.raycaster.intersectObjects(this.scene.children);
+                    if (hits.length > 0) window.openDetailFrom3D(hits[0].object.userData.id);
+                }
+
+                const onUp = (e) => {
+                    setTimeout(() => { this.isDragging = false; }, 50);
+                    this.mouseDownPos.set(0, 0);
+                    window.removeEventListener('mouseup', onUp);
+                    window.removeEventListener('touchend', onUp);
+                };
+
+                window.addEventListener('mousedown', this.onDown);
+                window.addEventListener('touchstart', this.onDown, { passive: true });
+                window.addEventListener('mousemove', this.onMove);
+                window.addEventListener('touchmove', this.onMove, { passive: true });
+                window.addEventListener('wheel', this.onWheel);
+                window.addEventListener('click', this.onClick);
+            }
+
+            animate() {
+                if (this.destroyed) return;
+                this.time += 0.01;
+
+                // Physics
+                const prevScroll = this.scroll;
+                this.scroll = THREE.MathUtils.lerp(this.scroll, this.targetScroll, 0.1);
+                this.velocity = this.scroll - prevScroll;
+                // Auto creep
+                this.targetScroll -= 0.1;
+
+                this.mouse.lerp(this.targetMouse, 0.1);
+
+                // Camera follow mouse slightly
+                this.camera.position.x += (this.mouse.x * 5 - this.camera.position.x) * 0.05;
+                this.camera.position.y += (this.mouse.y * 5 - this.camera.position.y) * 0.05;
+                this.camera.lookAt(0, 0, 0);
+
+                this.items.forEach(item => {
+                    const mesh = item.mesh;
+                    mesh.position.z += this.velocity * 10 + 0.05;
+
+                    // Loop
+                    if (mesh.position.z > 60) mesh.position.z -= 300;
+                    if (mesh.position.z < -240) mesh.position.z += 300;
+
+                    if (mesh.material.uniforms) {
+                        mesh.material.uniforms.uTime.value = this.time;
+                        mesh.material.uniforms.uVelocity.value = this.velocity;
+                    }
+                });
+
+                this.renderer.render(this.scene, this.camera);
+                requestAnimationFrame(() => this.animate());
+            }
+
+            destroy() {
+                this.destroyed = true;
+                window.removeEventListener('mousemove', this.onMove);
+                window.removeEventListener('wheel', this.onWheel);
+                window.removeEventListener('click', this.onClick);
+                this.renderer.clear();
+            }
+        }
+
+        // --- DOM ENGINE: INFINITE LAYERS (066) (Re-implemented Native Logic) ---
+        class EngineInfinite {
+            constructor(products) {
+                this.products = products;
+                this.wrapper = document.getElementById('infiniteContainer');
+                this.running = true;
+                this.init();
+            }
+            init() {
+                this.wrapper.innerHTML = '';
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+
+                // Create Container
+                const container = document.createElement('div');
+                container.id = 'infGrid';
+                container.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; cursor:grab; overflow:hidden;';
+                this.wrapper.appendChild(container);
+
+                // Draggable Logic using GSAP
+                this.scroll = { x: 0, y: 0 };
+                this.target = { x: 0, y: 0 };
+
+                // Populate items in a grid-like visual but infinite wrapping logic
+                // We will create a fixed number of items and wrap them.
+                // Filter out duplicates if products < 20
+                let itemsData = this.products;
+                if (itemsData.length < 10) itemsData = [...itemsData, ...itemsData, ...itemsData];
+
+                this.items = [];
+
+                // Grid cols
+                const cols = Math.ceil(Math.sqrt(itemsData.length));
+                const spacing = 400; // px
+
+                itemsData.forEach((p, i) => {
+                    const el = document.createElement('div');
+                    el.className = 'infinite-item'; // Re-use CSS class
+                    el.innerHTML = `<div class="infinite-item-inner"><img src="${p.gallery[0]}" class="infinite-img"></div><div class="infinite-label">${p.title}</div>`;
+
+                    // Initial Position grid
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+
+                    const x = col * spacing;
+                    const y = row * (spacing * 1.2);
+
+                    el.style.left = '0px';
+                    el.style.top = '0px';
+                    el.style.width = '300px';
+                    el.style.height = '400px';
+                    el.onclick = (e) => {
+                        // Click check
+                        if (this.isDragging) return;
+                        window.openDetailFrom3D(i % this.products.length);
+                    };
+
+                    container.appendChild(el);
+
+                    this.items.push({ el, x, y, baseX: x, baseY: y });
+                });
+
+                this.totalW = cols * spacing;
+                this.totalH = Math.ceil(itemsData.length / cols) * (spacing * 1.2);
+
+                // Drag Events
+                this.isDragging = false;
+                this.dragStart = { x: 0, y: 0 };
+
+                const onDown = (e) => {
+                    this.isDragging = false;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    this.dragStart.x = clientX;
+                    this.dragStart.y = clientY;
+                    this.startScroll = { ...this.target };
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                    document.addEventListener('touchmove', onMove, { passive: false });
+                    document.addEventListener('touchend', onUp);
+                };
+
+                const onMove = (e) => {
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    const dx = clientX - this.dragStart.x;
+                    const dy = clientY - this.dragStart.y;
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) this.isDragging = true;
+
+                    this.target.x = this.startScroll.x + dx;
+                    this.target.y = this.startScroll.y + dy;
+                    if (e.cancelable) e.preventDefault();
+                };
+
+                const onUp = () => {
+                    setTimeout(() => { this.isDragging = false; }, 50);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onUp);
+                };
+
+                container.addEventListener('mousedown', onDown);
+                container.addEventListener('touchstart', onDown, { passive: false });
+                this.animate();
+            }
+
+            animate() {
+                if (!this.running) return;
+
+                // Smooth Scroll
+                this.scroll.x += (this.target.x - this.scroll.x) * 0.1;
+                this.scroll.y += (this.target.y - this.scroll.y) * 0.1;
+
+                // Wrap Logic
+                const items = this.items;
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+
+                items.forEach(item => {
+                    let finalX = item.baseX + this.scroll.x;
+                    let finalY = item.baseY + this.scroll.y;
+
+                    // Infinite Wrapping
+                    const edgeW = this.totalW;
+                    const edgeH = this.totalH;
+
+                    while (finalX > winW) finalX -= edgeW;
+                    while (finalX < -300) finalX += edgeW; // 300 is width
+
+                    while (finalY > winH) finalY -= edgeH;
+                    while (finalY < -400) finalY += edgeH;
+
+                    // Parallax / Scale based on mouse center? User requested native logic. 
+                    // Native logic uses simple translate.
+
+                    item.el.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+
+            destroy() {
+                this.running = false;
+                this.wrapper.innerHTML = "";
+            }
+        }
+
+
+        // --- CONTROLLER ---
+        window.Mina3D = {
+            activeEngine: null,
+            launch: function (mode, products) {
+                const canvas = document.getElementById('canvas3D');
+
+                // Cleanup
+                if (this.activeEngine) {
+                    if (this.activeEngine.destroy) this.activeEngine.destroy();
+                }
+                this.activeEngine = null;
+
+                if (!products || products.length === 0) { console.warn("Mina3D.launch: No products provided"); return; }
+                console.log(`Mina3D.launch: mode=${mode}, products=${products.length}`);
+
+                if (mode === 'drag') {
+                    this.activeEngine = new EngineDraggable(products);
+                } else if (mode === 'infinite') {
+                    this.activeEngine = new EngineInfinite(products);
+                } else if (mode === 'void') {
+                    this.activeEngine = new EngineVoid(canvas, products);
+                } else if (mode === 'mouse') {
+                    this.activeEngine = new EngineMouseGallery(canvas, products);
+                }
+            }
+        };
+    </script>
+
+    <script src="data.js"></script>
+    <script>
+        // --- GLOBAL LOGIC ---
+        const SITE_URL = "https://minalidya.com";
+        const PHONE_NUMBER = "905421131641";
+        const CK = "ck_47900a134ac210b7f7e8f42ca5f492e7bdd1dd61";
+        const CS = "cs_be1ea89ad02493a40b3649dd9d8d172cacdd1b37";
+        const AUTH_HEADER = "Basic " + btoa(CK + ":" + CS);
+
+        // --- DATABASE INIT ---
+        window.DATABASE = { categories: [], products: [] };
+        window.FILTERED_PRODUCTS = [];
+        window.CURRENT_CAT_PRODUCTS = [];
+
+        function loadDatabase() {
+            // Try to use STATIC_DATA as requested failsafe
+            if (window.STATIC_DATA) {
+                window.DATABASE = window.STATIC_DATA;
+                console.log("Database Loaded from Static Data");
+            } else {
+                console.error("No Data Found! Check data.js");
+            }
+        }
+
+        // Load immediately
+        loadDatabase();
+        const VIDEOS_PATH = "videos/";
+        const TOTAL_VIDEOS = 51;
+        const TOTAL_INTRO = 12;
+
+        let DATABASE = { categories: [], products: [] };
+        let FILTERED_PRODUCTS = []; let CURRENT_CAT_PRODUCTS = []; let ALL_SITE_IMAGES = [];
+        let currentProdIndex = 0;
+
+        // VIEW MODE STATE
+        let activeViewMode = 'grid'; // grid, tunnel, cylinder
+
+        // AUDIO
+        const bgAudio = new Audio(); let isBgMuted = false;
+        const playlist = { 'TR': 'music/tr.mp3', 'SP': 'music/sp.mp3', 'EN': 'music/en.mp3' };
+        const trackOrder = ['TR', 'SP', 'EN']; let currentTrackIdx = 2;
+        bgAudio.src = playlist['TR'];
+
+        bgAudio.addEventListener('ended', () => { currentTrackIdx = (currentTrackIdx + 1) % trackOrder.length; playTrack(trackOrder[trackOrder.length - 1]); }); // Cycle reverse or simple? Let's just say trackOrder[currentTrackIdx]
+        function playTrack(lang) {
+            if (playlist[lang]) {
+                bgAudio.src = playlist[lang];
+                if (!isBgMuted) bgAudio.play();
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                const btn = document.getElementById('btn' + lang);
+                if (btn) btn.classList.add('active');
+                currentTrackIdx = trackOrder.indexOf(lang);
+            }
+        }
+        function toggleSound() { isBgMuted = !isBgMuted; if (isBgMuted) bgAudio.pause(); else bgAudio.play(); updateEq(!isBgMuted); }
+        function updateEq(playing) { const eq = document.getElementById('eqAnim'); if (playing) eq.innerHTML = '<div class="bar"></div><div class="bar"></div><div class="bar"></div>'; else eq.innerHTML = '<div style="font-size:1.2rem; opacity:0.5">—</div>'; }
+
+        // INTRO
+        const introVideos = Array.from({ length: TOTAL_INTRO }, (_, i) => `intro${i + 1}.mp4`);
+        const SLOGANS = ["THE BLACK SWAN", "COSMIC DUST", "ETHEREAL GLOW", "SILK & STEEL", "NEON DREAMS", "GOTHIC ROMANCE", "PURE ELEGANCE", "URBAN LEGEND", "MIDNIGHT SUN", "LIQUID GOLD", "ALPHA BRIDE", "TIMELESS VOWS"];
+        let currentIntroIdx = 0; const introVid = document.getElementById('introVid');
+        const cinematicTitle = document.getElementById('cinematicText');
+
+        function playNextIntro() {
+            currentIntroIdx = (currentIntroIdx + 1) % window.VIMEO_INTRO_IDS.length;
+            const vId = window.VIMEO_INTRO_IDS[currentIntroIdx];
+
+            gsap.to(introVid, {
+                opacity: 0, duration: 1, onComplete: () => {
+                    window.VimeoHelper.playIntroID(vId);
+                }
+            });
+
+            gsap.to(cinematicTitle, {
+                y: -20, opacity: 0, duration: 0.8, onComplete: () => {
+                    cinematicTitle.innerText = SLOGANS[currentIntroIdx % SLOGANS.length];
+                    gsap.fromTo(cinematicTitle, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1 });
+                }
+            });
+        }
+        introVid.onended = playNextIntro;
+
+        // Video Gallery (Legacy Removed - Handled by VideoController)
+
+        let touchStartX = 0;
+        // Carousel stage deprecated/removed in refactor.
+        // function handleSwipe(s, e) { if (s - e > 50) nextVideo(); if (e - s > 50) prevVideo(); }
+
+        window.onload = async () => {
+            const firstIntro = window.VIMEO_INTRO_IDS[0];
+            window.VimeoHelper.playIntroID(firstIntro);
+
+            gsap.to('.intro-title', { opacity: 1, y: 0, duration: 1.5, delay: 0.5 });
+            gsap.to('#cinematicText', { opacity: 1, y: 0, duration: 1.5, delay: 0.8 });
+            gsap.to('.intro-video-link', { opacity: 1, duration: 1, delay: 1.5 });
+            gsap.to('.loading-text', { opacity: 1, duration: 1, delay: 1 });
+
+            await fetchWPData();
+        };
+
+        async function fetchWPData(mode = 'cors') {
+            console.log("Attempting to load data...");
+            const loadingTxt = document.getElementById('loadingText');
+            let dataLoaded = false;
+
+            // Fallback Function
+            const useStaticData = () => {
+                console.log("Using Static/Backup Data source.");
+                if (window.STATIC_DATA) {
+                    DATABASE.categories = window.STATIC_DATA.categories;
+                    DATABASE.products = window.STATIC_DATA.products;
+
+                    // Populate Images
+                    DATABASE.products.forEach(p => {
+                        if (p.gallery) ALL_SITE_IMAGES.push(...p.gallery);
+                    });
+                } else {
+                    console.error("Critical: No Data Found.");
+                }
+            };
+
+            // OPTIMIZATION: On Localhost, try Direct WP API first (Serverless Mode)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log("Local Environment Detected: Attempting Direct WP API Connection...");
+
+                const directApiUrl = `${SITE_URL}/wp-json/wc/v3/products?per_page=100&status=publish`;
+                // Create Basic Auth Header properly
+                const auth = 'Basic ' + btoa(CK + ':' + CS);
+
+                fetch(directApiUrl, {
+                    headers: {
+                        'Authorization': auth
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Direct API Error: " + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        // WP API returns array directly for products, but our code expects { products: [...] } wrapper if it was from custom api.php
+                        // OR if it matches WC V3 response (array), we wrap it.
+                        let products = Array.isArray(data) ? data : data.products;
+
+                        if (products) {
+                            DATABASE.products = products;
+                            // Reset categories from products or defined static? 
+                            // If we fetch only products, we might miss categories list if logic separates them.
+                            // But usually we just need products for the grid.
+                            // Let's use STATIC_DATA categories if we can't fetch them, or try to extract.
+                            // For safety, let's mix:
+                            // If we have static categories, keep them. Update products.
+                            if (window.STATIC_DATA) DATABASE.categories = window.STATIC_DATA.categories;
+
+                            console.log("Direct WP API Success: Loaded " + products.length + " products.");
+
+                            // Load Images
+                            DATABASE.products.forEach(p => {
+                                // WP API 'images' field is array of objects {src, ...}
+                                // Our code uses 'gallery' (array of strings). We must map it.
+                                if (p.images && p.images.length > 0) {
+                                    p.gallery = p.images.map(img => img.src);
+                                } else {
+                                    p.gallery = [];
+                                }
+                            });
+
+                            dataLoaded = true;
+                            loadingTxt.style.display = 'none';
+                            gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+                        } else {
+                            throw new Error("Invalid Direct Data");
+                        }
+                    })
+                    .catch(e => {
+                        console.warn("Direct API failed, falling back to Static Data.", e);
+                        useStaticData();
+                        dataLoaded = true;
+                        loadingTxt.style.display = 'none';
+                        gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+                    });
+
+            } else {
+                // LIVE SERVER LOGIC (api.php)
+                try {
+                    loadingTxt.innerText = window.tData({ en: "Connecting to Boutique...", tr: "Mağazaya Bağlanılıyor..." });
+
+                    // Attempt Fetch with Timeout
+                    const controller = new AbortController();
+                    // Increased timeout to 30s because server needs time to loop pagination for all products
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                    const response = await fetch('api.php?type=products', { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // WooCommerce API returns a raw Array, not { products: [] }
+                        if (Array.isArray(data) && data.length > 0) {
+                            const extractedCats = new Map();
+                            data.forEach((p, i) => {
+                                try {
+                                    // 1. Map Images correctly
+                                    if (p.images && Array.isArray(p.images) && p.images.length > 0) {
+                                        p.gallery = p.images.map(img => img.src);
+                                    } else {
+                                        p.gallery = ["logo.png"];
+                                    }
+
+                                    // 2. Map Basic Fields
+                                    p.title = p.name || "Untitled";
+                                    const rawDesc = p.short_description || p.description || "";
+                                    p.desc = rawDesc.replace(/<[^>]*>?/gm, '').trim();
+
+                                    // 3. Map Categories Dynamically
+                                    p.category_ids = [];
+                                    if (p.categories && Array.isArray(p.categories)) {
+                                        p.categories.forEach(c => {
+                                            p.category_ids.push(c.id);
+                                            if (!extractedCats.has(c.id)) {
+                                                extractedCats.set(c.id, {
+                                                    id: c.id,
+                                                    name: { en: c.name, tr: c.name },
+                                                    slug: c.slug
+                                                });
+                                            }
+                                        });
+                                    }
+
+                                    // 4. Map Attributes correctly from WC API
+                                    const rawAttributes = p.attributes;
+                                    p.attributes = {};
+                                    if (rawAttributes && Array.isArray(rawAttributes)) {
+                                        rawAttributes.forEach(attr => {
+                                            if (attr.name && attr.options && attr.options.length > 0) {
+                                                p.attributes[attr.name] = attr.options[0];
+                                            }
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.warn("Product Parse Error:", e, p);
+                                }
+                            });
+
+                            const catArray = Array.from(extractedCats.values());
+                            // Finalize Database
+                            DATABASE = { products: data, categories: catArray };
+                            console.log(`Live Data Parsed: ${data.length} Products, ${catArray.length} Categories`);
+                            dataLoaded = true;
+                        } else if (data && data.products) {
+                            DATABASE = data;
+                            console.log("Live Data Loaded via APIProxy");
+                            dataLoaded = true;
+                        } else {
+                            console.error("API Response Invalid:", data);
+                            throw new Error("Invalid Data Structure: " + (data.error || "Unknown"));
+                        }
+                    } else {
+                        throw new Error("API Error: " + response.status);
+                    }
+
+                } catch (error) {
+                    console.warn("API Connection skipped/failed, switching to fallback.", error);
+                    useStaticData();
+                }
+
+                if (!dataLoaded) useStaticData();
+
+                // Finalize
+                dataLoaded = true;
+                loadingTxt.style.display = 'none';
+                gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+            }
+        }
+
+        function switchLayer(id) {
+            document.querySelectorAll('.app-layer').forEach(l => { l.classList.remove('active-layer'); l.classList.add('hidden-layer'); });
+            const target = document.getElementById(id);
+            target.classList.remove('hidden-layer');
+            target.classList.add('active-layer');
+
+            if (id === 'viewGrid' || id === 'viewDetail' || id === 'view3D') gsap.to('#backBtn', { opacity: 1, visibility: 'visible' });
+            else gsap.to('#backBtn', { opacity: 0, visibility: 'hidden' });
+
+            if (id === 'viewMenu') gsap.to('#themeBtn', { opacity: 1, visibility: 'visible' });
+            else gsap.to('#themeBtn', { opacity: 0, visibility: 'hidden' });
+        }
+
+        function enterSite() { switchLayer('viewQuiz'); introVid.pause(); if (!isBgMuted) bgAudio.play(); }
+        function handleQuiz(choice) {
+            isHijab = choice;
+            FILTERED_PRODUCTS = DATABASE.products.filter(p => isHijab ? p.is_tesettur : !p.is_tesettur);
+            if (FILTERED_PRODUCTS.length === 0) FILTERED_PRODUCTS = DATABASE.products;
+            initMenu(); switchLayer('viewMenu');
+        }
+        function directVideoAccess() { switchLayer('viewVideoGallery'); updateVideoPlayer(); introVid.pause(); }
+
+        // --- NEW MENU LOGIC ---
+        let hoverTimeout;
+        function initMenu() {
+            const list = document.getElementById('menuList'); list.innerHTML = "";
+            const bgImg = document.getElementById('menuBgImg');
+
+            // VIEW MODE SELECTOR
+            if (!document.getElementById('viewModeSelector')) {
+                const sel = document.createElement('div'); sel.id = 'viewModeSelector';
+                sel.style.cssText = "position:absolute; bottom:50px; display:flex; gap:20px; z-index:50;";
+
+                ['VOID', 'GRID', 'DRAG'].forEach(m => {
+                    const btn = document.createElement('div');
+                    btn.innerText = m;
+                    btn.style.cssText = "color:#888; cursor:pointer; font-size:0.9rem; font-weight:600; letter-spacing:3px; border-bottom:1px solid transparent; transition:0.3s; padding:5px 10px; background:rgba(0,0,0,0.5);";
+                    if (m.toLowerCase() === activeViewMode) { btn.style.color = '#fff'; btn.style.borderBottomColor = '#fff'; }
+
+                    btn.onclick = () => {
+                        if (document.getElementById('viewDetail').classList.contains('active-layer')) closeDetail();
+
+                        activeViewMode = m.toLowerCase();
+                        document.querySelectorAll('#viewModeSelector div').forEach(d => { d.style.color = '#888'; d.style.borderBottomColor = 'transparent'; });
+                        btn.style.color = '#fff'; btn.style.borderBottomColor = '#fff';
+
+                        if (!document.getElementById('viewMenu').classList.contains('active-layer')) {
+                            if (activeViewMode === 'grid') openInfiniteGrid(CURRENT_CAT_PRODUCTS);
+                            else if (activeViewMode === 'drag') { switchLayer('viewDraggable'); window.Mina3D.launch('drag', CURRENT_CAT_PRODUCTS); }
+                            else if (activeViewMode === 'void') { switchLayer('view3D'); window.Mina3D.launch('void', CURRENT_CAT_PRODUCTS); }
+                            else if (activeViewMode === 'mouse') { switchLayer('view3D'); window.Mina3D.launch('mouse', CURRENT_CAT_PRODUCTS); }
+                            else { switchLayer('view3D'); window.Mina3D.launch(activeViewMode, CURRENT_CAT_PRODUCTS); }
+                        }
+                    };
+                    sel.appendChild(btn);
+                });
+                document.getElementById('viewMenu').appendChild(sel);
+            }
+
+            // NEW: Sort by product count count (Desc)
+            const sortedCats = DATABASE.categories.map(c => {
+                c.count = FILTERED_PRODUCTS.filter(p => p.category_ids.includes(c.id)).length;
+                return c;
+            }).sort((a, b) => b.count - a.count);
+
+            sortedCats.forEach(cat => {
+                const catProds = FILTERED_PRODUCTS.filter(p => p.category_ids.includes(cat.id));
+                const count = catProds.length;
+
+                // --- Filter small categories ---
+                if (count >= 1) { // Lowered threshold for testing
+                    const li = document.createElement('li'); li.className = 'menu-item';
+
+                    // Check if cat.name is object or string
+                    const catName = window.tData(cat.name).toUpperCase();
+
+                    // Char Split Logic for "Hidden Vowel" effect
+                    const vowels = ['A', 'E', 'I', 'O', 'U', 'Ö', 'Ü', 'İ', 'Â'];
+                    let html = '';
+                    for (let char of catName) {
+                        if (char === ' ') html += '&nbsp;';
+                        else {
+                            if (vowels.includes(char)) html += `<span class="menu-char menu-vowel">${char}</span>`;
+                            else html += `<span class="menu-char">${char}</span>`;
+                        }
+                    }
+
+                    li.innerHTML = html;
+                    li.innerHTML += `<sup class="cat-count">${count}</sup>`;
+
+                    // Hover Effect with Delay (Debounce)
+                    li.onmouseenter = () => {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = setTimeout(() => {
+                            if (catProds.length > 0) {
+                                bgImg.classList.remove('active');
+                                setTimeout(() => {
+                                    bgImg.src = catProds[0].gallery[0];
+                                    bgImg.classList.add('active');
+                                }, 100);
+                            }
+                        }, 50);
+                    };
+
+                    li.onclick = () => {
+                        CURRENT_CAT_PRODUCTS = catProds;
+                        if (activeViewMode === 'grid') {
+                            openInfiniteGrid(catProds);
+                        } else if (activeViewMode === 'drag') {
+                            switchLayer('viewDraggable');
+                            if (window.Mina3D) window.Mina3D.launch('drag', catProds);
+                        } else if (activeViewMode === 'void') {
+                            switchLayer('view3D');
+                            if (window.Mina3D) window.Mina3D.launch('void', catProds);
+                        } else {
+                            switchLayer('view3D');
+                            if (window.Mina3D) window.Mina3D.launch(activeViewMode, catProds);
+                        }
+                    };
+                    list.appendChild(li);
+                }
+            });
+            const vid = document.createElement('li'); vid.className = 'menu-item video-link'; vid.innerText = window.t('film');
+            vid.style.cssText = "display: block; margin-top: 40px;"; // Force block and margin
+            vid.onclick = () => { switchLayer('viewVideoGallery'); updateVideoPlayer(); };
+            list.appendChild(vid);
+        }
+
+        function handleMenuClick(e, el, action, id) {
+            // Deprecated but kept for safety if called
+            action();
+        }
+
+        // --- NEW GRID LOGIC (Masonry-like) ---
+        // DEPRECATED: Old Grid Logic Removed. Using InfiniteGrid.
+        // function openGrid(prods) { ... }
+
+        // --- NEW DETAIL LOGIC ---
+        // Helpers for 3D bridge
+        window.openDetailFrom3D = (prodIndexOrId) => {
+            let p;
+            if (typeof prodIndexOrId === 'number' && prodIndexOrId < CURRENT_CAT_PRODUCTS.length) {
+                p = CURRENT_CAT_PRODUCTS[prodIndexOrId];
+                currentProdIndex = prodIndexOrId;
+            } else {
+                // Fallback if index is out of bounds or not a number, maybe use first product
+                p = CURRENT_CAT_PRODUCTS[0];
+            }
+            if (p) openDetail(p);
+        };
+
+        function openDetail(p) {
+            window.activeProduct = p;
+            const view = document.getElementById('viewDetail');
+            gsap.to('#backBtn', { opacity: 1, visibility: 'visible', duration: 0.3 });
+            const mainImg = document.getElementById('detMainImg'); mainImg.classList.remove('fullscreen');
+
+            // SOFT TRANSITION
+            const content = document.querySelectorAll('.det-main-img, .det-info');
+            gsap.to(content, {
+                opacity: 0, y: 20, duration: 0.3, onComplete: () => {
+                    document.getElementById('detTitle').innerText = window.tData(p.title);
+                    document.getElementById('detDesc').innerHTML = window.tData(p.desc);
+
+                    document.getElementById('detShopLink').href = p.permalink;
+                    document.getElementById('detShopLink').style.display = 'block';
+
+                    document.getElementById('detWhatsapp').href = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(window.tData(p.title))}`;
+
+                    const attrTable = document.getElementById('detAttrs'); attrTable.innerHTML = "";
+                    if (p.attributes) {
+                        for (const [key, value] of Object.entries(p.attributes)) {
+                            attrTable.innerHTML += `<div class="attr-row"><span class="attr-label">${window.tAttr(key)}</span><span class="attr-val">${window.tData(value)}</span></div>`;
+                        }
+                    }
+
+                    mainImg.style.display = 'block';
+                    mainImg.style.maxHeight = '60vh';
+                    mainImg.style.width = 'auto';
+                    mainImg.src = p.gallery[0];
+
+                    const thumbContainer = document.getElementById('detThumbnails');
+                    thumbContainer.innerHTML = "";
+
+                    p.gallery.forEach((imgSrc, index) => {
+                        const thumb = document.createElement('img'); thumb.src = imgSrc;
+                        thumb.className = (index === 0) ? 'thumb active' : 'thumb';
+                        thumb.onclick = () => {
+                            gsap.to(mainImg, { opacity: 0, duration: 0.2, onComplete: () => { mainImg.src = imgSrc; gsap.to(mainImg, { opacity: 1, duration: 0.2 }); } });
+                            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active')); thumb.classList.add('active');
+                        };
+                        thumbContainer.appendChild(thumb);
+                    });
+
+                    switchLayer('viewDetail');
+                    gsap.to(content, { opacity: 1, y: 0, duration: 0.5, delay: 0.1 });
+                }
+            });
+        }
+
+        // --- PREMIUM VIDEO CONTROLLER (Clean Implementation) ---
+        window.VideoController = {
+            idx: 1,
+            total: 51,
+            isShuffle: false,
+            elVideo: null,
+            elPlay: null,
+            elBar: null,
+            path: "videos/",
+
+            init: function () {
+                this.elVideo = document.getElementById('pvVideo');
+                this.elPlay = document.getElementById('pvBtnPlay');
+                this.elBar = document.getElementById('pvBar');
+
+                // Populate Left Sidebar Grid
+                const gridList = document.getElementById('pvGridList');
+                if (gridList && gridList.innerHTML.trim() === "") {
+                    for (let i = 1; i <= this.total; i++) {
+                        const item = document.createElement('div');
+                        item.className = 'pv-grid-item';
+                        item.id = 'pvItem-' + i;
+                        item.innerHTML = `<span class="pv-thumb-label">${i < 10 ? '0' + i : i}</span>`;
+                        item.onclick = () => this.load(i);
+                        gridList.appendChild(item);
+                    }
+                }
+
+                // Time Update
+                this.elVideo.ontimeupdate = () => {
+                    if (this.elVideo.duration) {
+                        const pct = (this.elVideo.currentTime / this.elVideo.duration) * 100;
+                        if (this.elBar) this.elBar.style.width = pct + '%';
+                    }
+                };
+
+                // On End or Error
+                this.elVideo.onended = () => { this.next(); };
+                this.elVideo.onerror = () => {
+                    console.error("Video Error, skipping");
+                    this.next();
+                };
+            },
+
+            launch: function () {
+                switchLayer('viewVideoGallery');
+                introVid.pause(); // Stop Home Intro
+                if (!this.elVideo) this.init();
+                this.load(this.idx);
+            },
+
+            load: function (index) {
+                // De-activate old
+                const oldItem = document.getElementById('pvItem-' + this.idx);
+                if (oldItem) oldItem.classList.remove('active');
+
+                this.idx = index;
+
+                // Activate new
+                const newItem = document.getElementById('pvItem-' + this.idx);
+                if (newItem) {
+                    newItem.classList.add('active');
+                    newItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                // Update Counter
+                const counter = document.getElementById('pvCounter');
+                if (counter) counter.innerText = (this.idx < 10 ? '0' + this.idx : this.idx);
+
+                // Text Update (Simulated)
+                const desc = document.getElementById('pvDescText');
+                const texts = [
+                    "Experience the elegance of the bridal collection through our lens.",
+                    "A journey through fabric and form.",
+                    "Capturing the essence of the modern bride.",
+                    "The details that make the difference.",
+                    "Timeless moments, captured forever."
+                ];
+                if (desc) desc.innerText = texts[this.idx % texts.length];
+
+                // Fade Out -> Load -> Fade In
+                gsap.to(this.elVideo, {
+                    opacity: 0, duration: 0.2, onComplete: () => {
+                        if (String(this.idx).length > 6 || window.VIMEO_GALLERY_IDS[this.idx - 1]) {
+                            const vId = window.VIMEO_GALLERY_IDS[this.idx - 1] || this.idx;
+                            document.getElementById('pvVideoContainer').innerHTML = window.VimeoHelper.getGalleryIframe(vId);
+                            gsap.to('#pvVideoContainer', { opacity: 1, duration: 0.5 });
+                        } else {
+                            this.elVideo.src = `${this.path}${this.idx}.mp4`;
+                            this.elVideo.load();
+                            // ... rest of load logic
+                        }
+
+                        const p = this.elVideo.play();
+                        if (p !== undefined) {
+                            p.then(() => {
+                                this.updatePlayBtn(true);
+                                gsap.to(this.elVideo, { opacity: 1, duration: 0.5 });
+                                gsap.to('#pvStatus', { opacity: 0 });
+                            }).catch(err => {
+                                console.warn("Autoplay Blocked:", err);
+                                this.updatePlayBtn(false);
+                                gsap.to(this.elVideo, { opacity: 1, duration: 0.5 }); // Show anyway
+                                gsap.to('#pvStatus', { opacity: 1, innerText: "PRESS PLAY" });
+                            });
+                        }
+                    }
+                });
+            },
+
+            togglePlay: function () {
+                if (this.elVideo.paused) {
+                    this.elVideo.play();
+                    this.updatePlayBtn(true);
+                    gsap.to('#pvStatus', { opacity: 0 });
+                } else {
+                    this.elVideo.pause();
+                    this.updatePlayBtn(false);
+                }
+            },
+
+            updatePlayBtn: function (isPlaying) {
+                this.elPlay.innerText = isPlaying ? "DURAKLAT" : "OYNAT";
+                this.elPlay.style.borderColor = isPlaying ? "#fff" : "rgba(255,255,255,0.3)";
+            },
+
+            next: function () {
+                if (this.isShuffle) {
+                    let n = this.idx;
+                    while (n === this.idx) n = Math.floor(Math.random() * this.total) + 1;
+                    this.load(n);
+                } else {
+                    this.idx++;
+                    if (this.idx > this.total) this.idx = 1;
+                    this.load(this.idx);
+                    // Force play if paused? keep state
+                    if (!this.elVideo.paused) this.updatePlayBtn(true);
+                }
+            },
+
+            prev: function () {
+                this.idx--;
+                if (this.idx < 1) this.idx = this.total;
+                this.load(this.idx);
+            },
+
+            toggleShuffle: function () {
+                this.isShuffle = !this.isShuffle;
+                const btn = document.getElementById('pvBtnShuffle');
+                btn.innerText = this.isShuffle ? "SHUFFLE: ON" : "SHUFFLE: OFF";
+                btn.classList.toggle('active');
+            },
+
+            toggleMute: function () {
+                this.elVideo.muted = !this.elVideo.muted;
+                const btn = document.getElementById('pvBtnMute');
+                btn.innerText = this.elVideo.muted ? "SESİ AÇ" : "SESİ KAPAT";
+
+                // Manage BG Audio
+                if (!this.elVideo.muted) bgAudio.volume = 0;
+                else bgAudio.volume = 1;
+            },
+
+            close: function () {
+                this.elVideo.pause();
+                bgAudio.volume = 1;
+            }
+        };
+
+        // Backward Compatibility / Helpers
+        function updateVideoPlayer() { VideoController.launch(); }
+        function toggleVideoShuffle() { VideoController.toggleShuffle(); }
+
+        function backToMenu() { switchLayer('viewMenu'); document.querySelectorAll('video').forEach(v => v.pause()); bgAudio.volume = 1; if (window.Mina3D && window.Mina3D.activeEngine) window.Mina3D.activeEngine.destroy(); }
+        function closeDetail() {
+            // Reset Detail view opacity/pos just in case
+            // If activeViewMode is Drag or Infinite, we need to ensure their containers are visible and not black screen.
+            const det = document.getElementById('viewDetail');
+            det.classList.remove('active-layer'); det.classList.add('hidden-layer');
+
+            if (activeViewMode === 'grid') {
+                document.getElementById('viewGrid').classList.remove('hidden-layer');
+                document.getElementById('viewGrid').classList.add('active-layer');
+            } else if (activeViewMode === 'drag') {
+                document.getElementById('viewDraggable').classList.remove('hidden-layer');
+                document.getElementById('viewDraggable').classList.add('active-layer');
+            } else if (activeViewMode === 'infinite') {
+                document.getElementById('viewInfinite').classList.remove('hidden-layer');
+                document.getElementById('viewInfinite').classList.add('active-layer');
+            } else {
+                // 3D Engine modes (Tunnel, Cylinder, Mouse, Void)
+                document.getElementById('view3D').classList.remove('hidden-layer');
+                document.getElementById('view3D').classList.add('active-layer');
+                // Ensure engine is running/visible? It should be as we didn't destroy it.
+            }
+            // Hide back btn logic handled by switchLayer, but here we manually toggle classes.
+            gsap.to('#backBtn', { opacity: 1, visibility: 'visible' });
+        }
+        function closeVideoGallery() { backToMenu(); }
+        function resetToHome() {
+            introVid.load(); introVid.currentTime = 0; currentIntroIdx = 0;
+            introVid.src = introVideos[0]; introVid.play().catch(() => { });
+            switchLayer('introLayer');
+        }
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleFullscreen(img) { img.classList.toggle('fullscreen'); }
+
+        // Ensure Thumbnails Work
+        // Logic is already in openDetail, verify CSS z-index and pointer-events.
+        // CSS for .det-thumbnails has z-index implied by container.
+        // We added close btn to .det-info, ensure it has z-index.
+
+    </script>
+</body>
+
+</html>

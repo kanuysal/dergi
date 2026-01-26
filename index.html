@@ -1183,7 +1183,7 @@
         /* --- 3-COLUMN CINEMATIC DASHBOARD CSS --- */
         .pv-layout-grid {
             display: grid;
-            grid-template-columns: 25% 50% 25%;
+            grid-template-columns: 350px 1fr 25%;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.95);
@@ -1208,13 +1208,13 @@
 
         .pv-grid-list {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(5, 1fr);
             /* 2 cols in sidebar */
             gap: 10px;
         }
 
         .pv-grid-item {
-            aspect-ratio: 9/16;
+            aspect-ratio: 1/1;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             cursor: pointer;
@@ -1432,21 +1432,13 @@
         .pv-back-btn {
             position: absolute;
             left: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            color: #fff;
-            font-family: var(--font-head);
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            opacity: 0.5;
-            transition: 0.4s;
-            writing-mode: vertical-rl;
+            top: 100px;
+            left: 40px;
+            transform: none;
+            writing-mode: horizontal-tb;
             text-orientation: mixed;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
         }
 
         .pv-back-btn:hover {
@@ -3059,9 +3051,18 @@
                     // Increased timeout to 30s because server needs time to loop pagination for all products
                     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-                    // Point to the main site's proxy where PHP executes correctly
-                    const PROXY_URL = "https://minalidya.com/katalog/api.php?type=products";
-                    const response = await fetch(PROXY_URL, { signal: controller.signal });
+                    // STRATEGY CHANGE: Direct Fetch (Browser bypasses Cloudflare Bot Protection)
+                    // We use the keys already exposed in this file.
+                    // This relies on the main site allowing CORS.
+                    const directApiUrl = "https://minalidya.com/wp-json/wc/v3/products?per_page=100&status=publish";
+                    const auth = 'Basic ' + btoa(CK + ':' + CS);
+
+                    const response = await fetch(directApiUrl, {
+                        headers: {
+                            'Authorization': auth
+                        },
+                        signal: controller.signal
+                    });
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
@@ -3379,8 +3380,18 @@
                     }
                 };
 
-                // On End or Error
-                this.elVideo.onended = () => { this.next(); };
+                if (this.elVideo) {
+                    this.elVideo.onended = () => {
+                        this.next();
+                    };
+                }
+
+                // Back Button: Reload to Intro
+                const backBtn = document.querySelector('.pv-back-btn');
+                if (backBtn) {
+                    backBtn.innerText = "ANA SAYFA";
+                    backBtn.onclick = () => window.location.reload();
+                }
                 this.elVideo.onerror = () => {
                     console.error("Video Error, skipping");
                     this.next();

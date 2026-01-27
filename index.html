@@ -1855,7 +1855,7 @@
             const sources = prods.map(p => {
                 const safeTitle = window.tData(p.title || p.name || "Untitled");
                 const rawDesc = p.desc || p.short_description || p.description || "";
-                const safeDesc = window.tData(rawDesc).replace(/<[^>]*>?/gm, '').trim();
+                const safeDesc = String(window.tData(rawDesc) || "").replace(/<[^>]*>?/gm, '').trim();
 
                 return {
                     src: (p.gallery && p.gallery.length > 0) ? p.gallery[0] : "logo.png",
@@ -2981,167 +2981,149 @@
                 }
             };
 
-            // OPTIMIZATION: On Localhost, try Direct WP API first (Serverless Mode)
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log("Local Environment Detected: Attempting Direct WP API Connection...");
+            // FORCE UNIFIED HYBRID LOGIC (Localhost check removed)
 
-                const directApiUrl = `${SITE_URL}/wp-json/wc/v3/products?per_page=100&status=publish`;
-                // Create Basic Auth Header properly
-                const auth = 'Basic ' + btoa(CK + ':' + CS);
+            // --- HYBRID DATA STRATEGY (From _app) ---
+            try {
+                loadingTxt.innerText = window.tData({ en: "Connecting to Boutique...", tr: "Mağazaya Bağlanılıyor..." });
+                let responseValid = false;
+                let rawData = [];
 
-                fetch(directApiUrl, {
-                    headers: {
-                        'Authorization': auth
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) throw new Error("Direct API Error: " + response.status);
-                        return response.json();
-                    })
-                    .then(data => {
-                        // WP API returns array directly for products, but our code expects { products: [...] } wrapper if it was from custom api.php
-                        // OR if it matches WC V3 response (array), we wrap it.
-                        let products = Array.isArray(data) ? data : data.products;
-
-                        if (products) {
-                            DATABASE.products = products;
-                            // Reset categories from products or defined static? 
-                            // If we fetch only products, we might miss categories list if logic separates them.
-                            // But usually we just need products for the grid.
-                            // Let's use STATIC_DATA categories if we can't fetch them, or try to extract.
-                            // For safety, let's mix:
-                            // If we have static categories, keep them. Update products.
-                            if (window.STATIC_DATA) DATABASE.categories = window.STATIC_DATA.categories;
-
-                            console.log("Direct WP API Success: Loaded " + products.length + " products.");
-
-                            // Load Images
-                            DATABASE.products.forEach(p => {
-                                // WP API 'images' field is array of objects {src, ...}
-                                // Our code uses 'gallery' (array of strings). We must map it.
-                                if (p.images && p.images.length > 0) {
-                                    p.gallery = p.images.map(img => img.src);
-                                } else {
-                                    p.gallery = [];
-                                }
-                            });
-
-                            dataLoaded = true;
-                            loadingTxt.style.display = 'none';
-                            gsap.to('.enter-btn', { opacity: 1, duration: 1 });
-                        } else {
-                            throw new Error("Invalid Direct Data");
-                        }
-                    })
-                    .catch(e => {
-                        console.warn("Direct API failed, falling back to Static Data.", e);
-                        useStaticData();
-                        dataLoaded = true;
-                        loadingTxt.style.display = 'none';
-                        gsap.to('.enter-btn', { opacity: 1, duration: 1 });
-                    });
-
-            } else {
-                // LIVE SERVER LOGIC (api.php)
+                // 1. Try Live API (api.php)
                 try {
-                    loadingTxt.innerText = window.tData({ en: "Connecting to Boutique...", tr: "Mağazaya Bağlanılıyor..." });
-
-                    // Attempt Fetch with Timeout
+                    console.log("Attempting Live API...");
                     const controller = new AbortController();
-                    // Increased timeout to 30s because server needs time to loop pagination for all products
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
 
-                    // STRATEGY CHANGE: Direct Fetch (Browser bypasses Cloudflare Bot Protection)
-                    // We use the keys already exposed in this file.
-                    // This relies on the main site allowing CORS.
-                    const directApiUrl = "https://minalidya.com/wp-json/wc/v3/products?per_page=100&status=publish";
-                    const auth = 'Basic ' + btoa(CK + ':' + CS);
-
-                    const response = await fetch(directApiUrl, {
-                        headers: {
-                            'Authorization': auth
-                        },
-                        signal: controller.signal
-                    });
+                    const response = await fetch('api.php?type=products', { signal: controller.signal });
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
-                        const data = await response.json();
-                        // WooCommerce API returns a raw Array, not { products: [] }
-                        if (Array.isArray(data) && data.length > 0) {
-                            const extractedCats = new Map();
-                            data.forEach((p, i) => {
-                                try {
-                                    // 1. Map Images correctly
-                                    if (p.images && Array.isArray(p.images) && p.images.length > 0) {
-                                        p.gallery = p.images.map(img => img.src);
-                                    } else {
-                                        p.gallery = ["logo.png"];
-                                    }
-
-                                    // 2. Map Basic Fields
-                                    p.title = p.name || "Untitled";
-                                    const rawDesc = p.short_description || p.description || "";
-                                    p.desc = rawDesc.replace(/<[^>]*>?/gm, '').trim();
-
-                                    // 3. Map Categories Dynamically
-                                    p.category_ids = [];
-                                    if (p.categories && Array.isArray(p.categories)) {
-                                        p.categories.forEach(c => {
-                                            p.category_ids.push(c.id);
-                                            if (!extractedCats.has(c.id)) {
-                                                extractedCats.set(c.id, {
-                                                    id: c.id,
-                                                    name: { en: c.name, tr: c.name },
-                                                    slug: c.slug
-                                                });
-                                            }
-                                        });
-                                    }
-
-                                    // 4. Map Attributes correctly from WC API
-                                    const rawAttributes = p.attributes;
-                                    p.attributes = {};
-                                    if (rawAttributes && Array.isArray(rawAttributes)) {
-                                        rawAttributes.forEach(attr => {
-                                            if (attr.name && attr.options && attr.options.length > 0) {
-                                                p.attributes[attr.name] = attr.options[0];
-                                            }
-                                        });
-                                    }
-                                } catch (e) {
-                                    console.warn("Product Parse Error:", e, p);
-                                }
-                            });
-
-                            const catArray = Array.from(extractedCats.values());
-                            // Finalize Database
-                            DATABASE = { products: data, categories: catArray };
-                            console.log(`Live Data Parsed: ${data.length} Products, ${catArray.length} Categories`);
-                            dataLoaded = true;
-                        } else if (data && data.products) {
-                            DATABASE = data;
-                            console.log("Live Data Loaded via APIProxy");
-                            dataLoaded = true;
-                        } else {
-                            throw new Error("Invalid Data Structure");
+                        const json = await response.json();
+                        if (Array.isArray(json) && json.length > 0) {
+                            rawData = json;
+                            responseValid = true;
+                            console.log("Live API Success:", rawData.length);
                         }
-                    } else {
-                        throw new Error("API Error: " + response.status);
                     }
+                } catch (e) { console.warn("Live API Failed:", e); }
 
-                } catch (error) {
-                    // Silently switch to static data if API proxy is unavailable or serving raw text (Cloudflare environment)
-                    useStaticData();
+                // 2. If Failed, Try Static JSON (products.json)
+                if (!responseValid) {
+                    console.log("Live API Unavailable, trying Static JSON...");
+                    try {
+                        const response = await fetch('products.json?v=' + new Date().getTime());
+                        if (response.ok) {
+                            const json = await response.json();
+                            // products.json might be pre-normalized or raw. 
+                            // If it has 'attributes' as object, it's normalized.
+                            // We will detect inside parsing.
+                            rawData = Array.isArray(json) ? json : (json.products || []);
+                            if (rawData.length > 0) {
+                                responseValid = true;
+                                console.log("Static JSON Success:", rawData.length);
+                            }
+                        }
+                    } catch (e) { console.warn("Static JSON Failed:", e); }
                 }
 
-                if (!dataLoaded) useStaticData();
+                if (responseValid && rawData.length > 0) {
+                    // --- CLIENT SIDE NORMALIZATION (Matches _app logic) ---
+                    const extractedCats = new Map();
 
-                // Finalize
-                dataLoaded = true;
-                loadingTxt.style.display = 'none';
-                gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+                    rawData.forEach(p => {
+                        try {
+                            // A. Images/Gallery
+                            if (!p.gallery) {
+                                if (p.images && Array.isArray(p.images)) {
+                                    p.gallery = p.images.map(img => img.src);
+                                } else {
+                                    p.gallery = ["logo.png"];
+                                }
+                            }
+
+                            // B. Description & Title
+                            if (!p.desc) {
+                                const rawDesc = p.short_description || p.description || "";
+                                p.desc = rawDesc.replace(/<[^>]*>?/gm, '').trim();
+                            }
+                            if (!p.title) p.title = p.name || "Untitled";
+
+                            // C. Attributes (Array -> Object)
+                            // Only run this if not already an object
+                            if (p.attributes && Array.isArray(p.attributes)) {
+                                const newAttrs = {};
+                                p.attributes.forEach(attr => {
+                                    if (attr.name && attr.options) {
+                                        const val = Array.isArray(attr.options) ? attr.options[0] : attr.options;
+                                        newAttrs[attr.name] = val;
+                                    }
+                                });
+                                p.attributes = newAttrs;
+                            }
+
+                            // D. Categories
+                            p.category_ids = [];
+                            // If we have category objects (Live API)
+                            if (p.categories && Array.isArray(p.categories) && typeof p.categories[0] === 'object') {
+                                p.categories.forEach(c => {
+                                    p.category_ids.push(c.id);
+                                    if (!extractedCats.has(c.id)) {
+                                        extractedCats.set(c.id, {
+                                            id: c.id,
+                                            name: { en: c.name, tr: c.name }, // API returns parsed name
+                                            slug: c.slug
+                                        });
+                                    }
+                                });
+                            }
+                            // If we have category_names strings (Static Refresh.php)
+                            else if (p.category_names && Array.isArray(p.category_names)) {
+                                p.category_names.forEach(name => {
+                                    const slug = name.toLowerCase().replace(/ /g, '-');
+                                    p.category_ids.push(slug);
+                                    if (!extractedCats.has(slug)) {
+                                        extractedCats.set(slug, {
+                                            id: slug,
+                                            name: { en: name, tr: name },
+                                            slug: slug
+                                        });
+                                    }
+                                });
+                            }
+
+                        } catch (err) { console.warn("Skipping corrupt product", p.id); }
+                    });
+
+                    // Finalize
+                    DATABASE = {
+                        products: rawData,
+                        categories: Array.from(extractedCats.values())
+                    };
+
+                    dataLoaded = true;
+                    loadingTxt.style.display = 'none';
+                    gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+
+                } else {
+                    throw new Error("No data available from API or Static source.");
+                }
+
+            } catch (error) {
+                console.error("CRITICAL DATA FAILURE:", error);
+                loadingTxt.innerText = "Connection Error / Bağlantı Hatası";
+                // Optionally show retry button
             }
+            // END UNFIFIED LOGIC
+
+
+            if (!dataLoaded) useStaticData();
+
+            // Finalize
+            dataLoaded = true;
+            loadingTxt.style.display = 'none';
+            gsap.to('.enter-btn', { opacity: 1, duration: 1 });
+        }
         }
 
         function switchLayer(id) {

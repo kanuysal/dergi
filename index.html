@@ -2991,7 +2991,7 @@
 
                 // 1. Try Live API (Cloudflare Worker)
                 try {
-                    console.log("Attempting Cloudflare Worker API [V2.3-BINGO]...");
+                    console.log("Attempting Cloudflare Worker API [V2.4-ATTR]...");
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
 
@@ -3011,10 +3011,10 @@
                         if (products.length > 0) {
                             rawData = products;
                             responseValid = true;
-                            console.log("Worker API [V2.2-BINGO] Success:", rawData.length);
+                            console.log("Worker API [V2.4-ATTR] Success:", rawData.length);
                         }
                     }
-                } catch (e) { console.warn("Worker API [V2.3-BINGO] Failed:", e); }
+                } catch (e) { console.warn("Worker API [V2.4-ATTR] Failed:", e); }
 
                 // 2. If Failed, Try Static JSON (products.json)
                 if (!responseValid) {
@@ -3067,17 +3067,26 @@
                             }
                             if (!p.title) p.title = p.name || p.title || "Untitled";
 
-                            // C. Attributes (Array -> Object)
-                            if (p.attributes && Array.isArray(p.attributes)) {
-                                const newAttrs = {};
-                                p.attributes.forEach(attr => {
-                                    if (attr.name && attr.options) {
-                                        const val = Array.isArray(attr.options) ? attr.options[0] : attr.options;
-                                        newAttrs[attr.name] = val;
+                            // C. Attributes (Support for both old array and new object formats)
+                            const rawAttrs = p.mappedAttributes || p.attributes;
+                            const finalAttrs = {};
+                            if (rawAttrs) {
+                                if (Array.isArray(rawAttrs)) {
+                                    rawAttrs.forEach(attr => {
+                                        if (attr.name && attr.options) {
+                                            const val = Array.isArray(attr.options) ? attr.options[0] : attr.options;
+                                            finalAttrs[attr.name] = { en: val, tr: val };
+                                        }
+                                    });
+                                } else if (typeof rawAttrs === 'object' && !Array.isArray(rawAttrs)) {
+                                    for (const [key, val] of Object.entries(rawAttrs)) {
+                                        if (val && val !== "" && val !== " ") {
+                                            finalAttrs[key] = { en: val, tr: val };
+                                        }
                                     }
-                                });
-                                p.attributes = newAttrs;
+                                }
                             }
+                            p.attributes = finalAttrs;
 
                             // D. Categories (Normalized for magazin filter)
                             p.category_ids = [];

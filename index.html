@@ -2991,7 +2991,7 @@
 
                 // 1. Try Live API (Cloudflare Worker)
                 try {
-                    console.log("Attempting Cloudflare Worker API [V2.2-BINGO]...");
+                    console.log("Attempting Cloudflare Worker API [V2.3-BINGO]...");
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
 
@@ -3014,7 +3014,7 @@
                             console.log("Worker API [V2.2-BINGO] Success:", rawData.length);
                         }
                     }
-                } catch (e) { console.warn("Worker API [V2.2-BINGO] Failed:", e); }
+                } catch (e) { console.warn("Worker API [V2.3-BINGO] Failed:", e); }
 
                 // 2. If Failed, Try Static JSON (products.json)
                 if (!responseValid) {
@@ -3042,37 +3042,32 @@
                     rawData.forEach(p => {
                         try {
                             // A. Images/Gallery
-                            if (!p.gallery) {
-                                if (p.images && Array.isArray(p.images)) {
-                                    p.gallery = p.images.map(img => {
-                                        let src = img.src;
-                                        if (src.includes('minalidya.com') && !src.includes('weserv.nl')) {
-                                            return "https://images.weserv.nl/?url=" + src.replace(/^https?:\/\//, '');
-                                        }
-                                        return src;
-                                    });
+                            if (!p.gallery || !Array.isArray(p.gallery)) {
+                                if (p.image) {
+                                    p.gallery = [p.image];
+                                } else if (p.images && Array.isArray(p.images)) {
+                                    p.gallery = p.images.map(img => img.src || img);
                                 } else {
                                     p.gallery = ["logo.png"];
                                 }
-                            } else {
-                                // Proxy existing gallery (from static)
-                                p.gallery = p.gallery.map(src => {
-                                    if (src.includes('minalidya.com') && !src.includes('weserv.nl')) {
-                                        return "https://images.weserv.nl/?url=" + src.replace(/^https?:\/\//, '');
-                                    }
-                                    return src;
-                                });
                             }
+
+                            // Image Proxy (Optional - if needed for speed)
+                            p.gallery = p.gallery.map(src => {
+                                if (src.includes('minalidya.com') && !src.includes('weserv.nl')) {
+                                    return "https://images.weserv.nl/?url=" + src.replace(/^https?:\/\//, '');
+                                }
+                                return src;
+                            });
 
                             // B. Description & Title
                             if (!p.desc) {
                                 const rawDesc = p.short_description || p.description || "";
                                 p.desc = rawDesc.replace(/<[^>]*>?/gm, '').trim();
                             }
-                            if (!p.title) p.title = p.name || "Untitled";
+                            if (!p.title) p.title = p.name || p.title || "Untitled";
 
                             // C. Attributes (Array -> Object)
-                            // Only run this if not already an object
                             if (p.attributes && Array.isArray(p.attributes)) {
                                 const newAttrs = {};
                                 p.attributes.forEach(attr => {
@@ -3084,22 +3079,39 @@
                                 p.attributes = newAttrs;
                             }
 
-                            // D. Categories
+                            // D. Categories (Normalized for magazin filter)
                             p.category_ids = [];
-                            // If we have category objects (Live API)
-                            if (p.categories && Array.isArray(p.categories) && typeof p.categories[0] === 'object') {
+
+                            // Handle new API "category" field (string)
+                            if (p.category && typeof p.category === 'string') {
+                                const slug = p.category.toLowerCase().replace(/ /g, '-');
+                                p.category_ids.push(slug);
+                                if (!extractedCats.has(slug)) {
+                                    extractedCats.set(slug, {
+                                        id: slug,
+                                        name: { en: p.category.charAt(0).toUpperCase() + p.category.slice(1), tr: p.category.charAt(0).toUpperCase() + p.category.slice(1) },
+                                        slug: slug
+                                    });
+                                }
+                            }
+
+                            // Handle array categories (Live API / Static)
+                            if (p.categories && Array.isArray(p.categories)) {
                                 p.categories.forEach(c => {
-                                    p.category_ids.push(c.id);
-                                    if (!extractedCats.has(c.id)) {
-                                        extractedCats.set(c.id, {
-                                            id: c.id,
-                                            name: { en: c.name, tr: c.name }, // API returns parsed name
-                                            slug: c.slug
+                                    const cid = c.id || c.slug || c;
+                                    const cname = c.name || c;
+                                    p.category_ids.push(cid);
+                                    if (!extractedCats.has(cid)) {
+                                        extractedCats.set(cid, {
+                                            id: cid,
+                                            name: { en: cname, tr: cname },
+                                            slug: c.slug || cid
                                         });
                                     }
                                 });
                             }
-                            // If we have category_names strings (Static Refresh.php)
+
+                            // Handle category_names (Static JSON)
                             else if (p.category_names && Array.isArray(p.category_names)) {
                                 p.category_names.forEach(name => {
                                     const slug = name.toLowerCase().replace(/ /g, '-');

@@ -2989,24 +2989,32 @@
                 let responseValid = false;
                 let rawData = [];
 
-                // 1. Try Live API (api.php)
+                // 1. Try Live API (Cloudflare Worker)
                 try {
-                    console.log("Attempting Live API...");
+                    console.log("Attempting Cloudflare Worker API [V2.2-BINGO]...");
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
 
-                    const response = await fetch('api.php?type=products', { signal: controller.signal });
+                    const response = await fetch('https://minalidya-product-api.kanuysal.workers.dev/api/products', {
+                        signal: controller.signal,
+                        headers: {
+                            'x-api-key': 'minalidya_secure_2026'
+                        }
+                    });
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
                         const json = await response.json();
-                        if (Array.isArray(json) && json.length > 0) {
-                            rawData = json;
+                        // Support both direct array and object with products key
+                        const products = Array.isArray(json) ? json : (json.products || []);
+
+                        if (products.length > 0) {
+                            rawData = products;
                             responseValid = true;
-                            console.log("Live API Success:", rawData.length);
+                            console.log("Worker API [V2.2-BINGO] Success:", rawData.length);
                         }
                     }
-                } catch (e) { console.warn("Live API Failed:", e); }
+                } catch (e) { console.warn("Worker API [V2.2-BINGO] Failed:", e); }
 
                 // 2. If Failed, Try Static JSON (products.json)
                 if (!responseValid) {
@@ -3036,10 +3044,24 @@
                             // A. Images/Gallery
                             if (!p.gallery) {
                                 if (p.images && Array.isArray(p.images)) {
-                                    p.gallery = p.images.map(img => img.src);
+                                    p.gallery = p.images.map(img => {
+                                        let src = img.src;
+                                        if (src.includes('minalidya.com') && !src.includes('weserv.nl')) {
+                                            return "https://images.weserv.nl/?url=" + src.replace(/^https?:\/\//, '');
+                                        }
+                                        return src;
+                                    });
                                 } else {
                                     p.gallery = ["logo.png"];
                                 }
+                            } else {
+                                // Proxy existing gallery (from static)
+                                p.gallery = p.gallery.map(src => {
+                                    if (src.includes('minalidya.com') && !src.includes('weserv.nl')) {
+                                        return "https://images.weserv.nl/?url=" + src.replace(/^https?:\/\//, '');
+                                    }
+                                    return src;
+                                });
                             }
 
                             // B. Description & Title
